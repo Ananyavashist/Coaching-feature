@@ -29,11 +29,13 @@ export function CoachingOverlay({
   open,
   onClose,
   initialSuggestions = [],
+  patternsOnly = false,
   onSubmit,
 }: {
   open: boolean;
   onClose: () => void;
   initialSuggestions?: SuggestionPattern[];
+  patternsOnly?: boolean;
   onSubmit: (session: CoachingSession) => void;
 }) {
   const [recipient, setRecipient] = useState(coaches[0].id);
@@ -55,10 +57,23 @@ export function CoachingOverlay({
     };
   }, [open]);
 
-  // Re-seed the suggestion list whenever the overlay is (re)opened with a selection.
+  // Re-seed form whenever the overlay is (re)opened.
   useEffect(() => {
-    if (open) setSuggestions(initialSuggestions);
-  }, [open, initialSuggestions]);
+    if (!open) return;
+    setSuggestions(initialSuggestions);
+    if (patternsOnly) {
+      setDescription("");
+      setGoals([]);
+      setNewGoal("");
+      setRecipient(coaches[0].id);
+      setDate(sessionDates[0]);
+      setSlot(timeSlots[0]);
+      setPriority("medium");
+    } else {
+      setDescription(coachingDefaults.description);
+      setGoals(coachingDefaults.meetingGoals.filter(Boolean));
+    }
+  }, [open, initialSuggestions, patternsOnly]);
 
   const recipientOptions: SelectOption[] = coaches.map((c) => ({
     value: c.id,
@@ -125,6 +140,7 @@ export function CoachingOverlay({
       suggestions,
       goals,
       status: "pending",
+      submittedViaForm: true,
     });
   };
 
@@ -257,7 +273,7 @@ export function CoachingOverlay({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={5}
-              className="w-full resize-none rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-700 shadow-xs placeholder:text-gray-500 focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100"
+              className="w-full resize-none rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-700 placeholder:text-gray-500 focus:border-brand-500 focus:outline-none"
             />
           </div>
 
@@ -271,7 +287,7 @@ export function CoachingOverlay({
                     onChange={(e) =>
                       setGoals((prev) => prev.map((x, idx) => (idx === i ? e.target.value : x)))
                     }
-                    className="h-11 w-full rounded-lg border border-gray-300 px-3.5 text-sm text-gray-700 shadow-xs focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100"
+                    className="h-11 w-full rounded-lg border border-gray-300 px-3.5 text-sm text-gray-700 focus:border-brand-500 focus:outline-none"
                   />
                   <button
                     onClick={() => setGoals((prev) => prev.filter((_, idx) => idx !== i))}
@@ -293,7 +309,7 @@ export function CoachingOverlay({
                     }
                   }}
                   placeholder="Add what do you want to get out of this session"
-                  className="h-11 w-full rounded-lg border border-gray-300 px-3.5 text-sm text-gray-700 shadow-xs placeholder:text-gray-500 focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100"
+                  className="h-11 w-full rounded-lg border border-gray-300 px-3.5 text-sm text-gray-700 placeholder:text-gray-500 focus:border-brand-500 focus:outline-none"
                 />
                 <button
                   onClick={addGoal}

@@ -10,15 +10,15 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const base =
-  "inline-flex items-center justify-center gap-1.5 rounded-lg font-semibold transition-colors focus:outline-none focus-visible:ring-4 focus-visible:ring-cta-ring disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap";
+  "inline-flex items-center justify-center gap-1.5 rounded-lg border font-semibold transition-colors focus:outline-none focus-visible:border-brand-500 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap";
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-cta text-white border border-cta hover:bg-cta-hover hover:border-cta-hover",
+    "bg-cta text-white border-cta hover:bg-cta-hover hover:border-cta-hover",
   secondary:
     "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50",
   "secondary-color":
-    "bg-white text-brand-700 border border-brand-300 hover:bg-brand-50",
+    "bg-white text-[#000000] border border-[#000000] hover:bg-gray-50",
   tertiary: "bg-transparent text-gray-600 hover:bg-gray-50 border border-transparent",
   "ghost-icon":
     "bg-transparent text-gray-500 hover:bg-gray-100 border border-transparent",

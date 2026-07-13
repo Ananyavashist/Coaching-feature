@@ -10,6 +10,7 @@ export const primaryNav: NavItem[] = [
   { id: "my-performance", label: "My Performance", icon: "BarChartSquare02" },
   { id: "teams", label: "My Teams", icon: "Users01" },
   { id: "coaching", label: "Coaching", icon: "GraduationHat01" },
+  { id: "sessions", label: "Sessions", icon: "FileCheck02" },
   { id: "evaluation-criteria", label: "Evaluation criteria", icon: "FileCheck02" },
   { id: "yearly-insights", label: "Yearly Insights", icon: "LineChartUp03" },
 ];
@@ -85,6 +86,9 @@ export type FeedbackPattern = {
   /** Bubble center as a percentage of the plot area. */
   x: number;
   y: number;
+  /** Optional pixel nudge from the computed center. */
+  offsetX?: number;
+  offsetY?: number;
   /** Where the label tag sits relative to the bubble. */
   labelPos: "top" | "bottom" | "bottom-right" | "top-left";
   /** Competency this feedback maps to. */
@@ -101,6 +105,7 @@ export const feedbackPatterns: FeedbackPattern[] = [
     size: 132,
     x: 36,
     y: 40,
+    offsetX: -20,
     labelPos: "top",
     category: "Engineering Excellence",
     tone: "warning",
@@ -113,6 +118,7 @@ export const feedbackPatterns: FeedbackPattern[] = [
     size: 92,
     x: 14,
     y: 76,
+    offsetY: -26,
     labelPos: "bottom",
     category: "Trust and Integrity",
     tone: "brand",
@@ -350,6 +356,46 @@ export type BoardTask = {
   done: boolean;
 };
 
+export type BoardApprovalStatus = "draft" | "pending" | "approved";
+
+export type TranscriptSpeaker = "manager" | "engineer";
+
+export type TranscriptLine = {
+  id: string;
+  speaker: TranscriptSpeaker;
+  speakerName: string;
+  text: string;
+  timestamp: string;
+};
+
+export type TranscriptSummaryBullet = {
+  id: string;
+  text: string;
+  sourceQuote: string;
+  sourceSpeaker: string;
+};
+
+export type TranscriptSummarySection = {
+  id: string;
+  heading: string;
+  bullets: TranscriptSummaryBullet[];
+};
+
+export type TranscriptChatMessage = {
+  id: string;
+  role: "user" | "assistant";
+  question?: string;
+  bullets?: TranscriptSummaryBullet[];
+  intro?: string;
+};
+
+export type MeetingTranscript = {
+  lines: TranscriptLine[];
+  summary?: TranscriptSummarySection[];
+  chatHistory: TranscriptChatMessage[];
+  summarizedAt?: string;
+};
+
 export type MeetingBoard = {
   /* Carried into the meeting */
   challenge: string;
@@ -389,6 +435,13 @@ export type CoachingSession = {
   discussTasks?: BoardTask[];
   /** Follow-up session booked during a live coaching call. */
   createdDuringMeeting?: boolean;
+  /** Submitted through the coaching request form — eligible for manager auto-accept demo. */
+  submittedViaForm?: boolean;
+  /** Seed/demo card that always stays in pending. */
+  isPermanentDemo?: boolean;
+  boardApprovalStatus?: BoardApprovalStatus;
+  transcript?: MeetingTranscript;
+  savedToSessionsAt?: string;
 };
 
 let boardSeq = 0;
@@ -445,7 +498,262 @@ export function buildBoard(session: CoachingSession, forLiveMeeting = false): Me
   };
 }
 
-/** AI fills captured fields from the transcript — user reviews before saving. */
+/** Empty transcript state for a new live meeting. */
+export function createEmptyTranscript(): MeetingTranscript {
+  return { lines: [], chatHistory: [] };
+}
+
+/** Mock live transcript script — timed delivery during the call. */
+export function buildLiveTranscriptScript(session: CoachingSession): Omit<TranscriptLine, "id">[] {
+  const manager = session.managerName;
+  const engineer = currentUser.name;
+  return [
+    {
+      speaker: "manager",
+      speakerName: manager,
+      text: `Thanks for joining, ${engineer}. Let's start with the agenda you shared on PR documentation.`,
+      timestamp: "2:01 PM",
+    },
+    {
+      speaker: "engineer",
+      speakerName: engineer,
+      text: "Sounds good. I have the patterns and challenge pulled up on the board.",
+      timestamp: "2:02 PM",
+    },
+    {
+      speaker: "manager",
+      speakerName: manager,
+      text: "Walk me through a recent pull request where reviewers asked for more context.",
+      timestamp: "2:03 PM",
+    },
+    {
+      speaker: "engineer",
+      speakerName: engineer,
+      text: "Last week I shipped the analytics export endpoint. Reviewers needed three rounds because the PR description didn't explain the data shape or test coverage.",
+      timestamp: "2:04 PM",
+    },
+    {
+      speaker: "manager",
+      speakerName: manager,
+      text: "That's a good example. What would a lightweight template look like for your team?",
+      timestamp: "2:06 PM",
+    },
+    {
+      speaker: "engineer",
+      speakerName: engineer,
+      text: "I'm thinking: summary, screenshots, test notes, and any API contract changes. Maybe a checklist before opening the PR.",
+      timestamp: "2:07 PM",
+    },
+    {
+      speaker: "manager",
+      speakerName: manager,
+      text: "Agreed. Let's also talk about sharing blockers earlier — that's come up in peer feedback.",
+      timestamp: "2:09 PM",
+    },
+    {
+      speaker: "engineer",
+      speakerName: engineer,
+      text: "Fair point. I tend to post updates late in the sprint when I'm deep in implementation.",
+      timestamp: "2:10 PM",
+    },
+    {
+      speaker: "manager",
+      speakerName: manager,
+      text: "Try mid-sprint check-ins in Slack. Even a two-line status helps the team plan.",
+      timestamp: "2:11 PM",
+    },
+    {
+      speaker: "engineer",
+      speakerName: engineer,
+      text: "I'll commit to posting blocker updates by Wednesday each sprint.",
+      timestamp: "2:12 PM",
+    },
+    {
+      speaker: "manager",
+      speakerName: manager,
+      text: "Great. Let's capture milestones and tasks on the board before we wrap.",
+      timestamp: "2:14 PM",
+    },
+    {
+      speaker: "engineer",
+      speakerName: engineer,
+      text: "I'll draft the PR template and share it with the team by end of week.",
+      timestamp: "2:15 PM",
+    },
+  ];
+}
+
+/** Generate categorized summary from transcript lines. */
+export function generateTranscriptSummary(
+  session: CoachingSession,
+  _lines: TranscriptLine[]
+): TranscriptSummarySection[] {
+  const manager = session.managerName;
+  const engineer = currentUser.name;
+  return [
+    {
+      id: "ctx",
+      heading: "Session context",
+      bullets: [
+        {
+          id: "ctx-1",
+          text: `${manager} and ${engineer} reviewed ${session.category.toLowerCase()} coaching goals around PR documentation and sprint communication.`,
+          sourceQuote: `Thanks for joining, ${engineer}. Let's start with the agenda you shared on PR documentation.`,
+          sourceSpeaker: manager,
+        },
+        {
+          id: "ctx-2",
+          text: `Session focused on ${session.goals.join(" and ").toLowerCase() || "concrete next steps"}.`,
+          sourceQuote: session.description.split(". ")[0] + ".",
+          sourceSpeaker: manager,
+        },
+      ],
+    },
+    {
+      id: "problem",
+      heading: "Problem discussed",
+      bullets: [
+        {
+          id: "prob-1",
+          text: "PR descriptions lack enough context before review, causing repeated reviewer questions and slower turnaround.",
+          sourceQuote:
+            "Last week I shipped the analytics export endpoint. Reviewers needed three rounds because the PR description didn't explain the data shape or test coverage.",
+          sourceSpeaker: engineer,
+        },
+        {
+          id: "prob-2",
+          text: "Progress and blockers are shared late in the sprint, limiting the team's ability to plan and unblock work.",
+          sourceQuote: "I tend to post updates late in the sprint when I'm deep in implementation.",
+          sourceSpeaker: engineer,
+        },
+      ],
+    },
+    {
+      id: "milestones",
+      heading: "Milestones agreed",
+      bullets: [
+        {
+          id: "ms-1",
+          text: "Agree on a shared PR description template for the team.",
+          sourceQuote: "What would a lightweight template look like for your team?",
+          sourceSpeaker: manager,
+        },
+        {
+          id: "ms-2",
+          text: "Reduce average PR review turnaround time over the next sprint.",
+          sourceQuote: "Let's capture milestones and tasks on the board before we wrap.",
+          sourceSpeaker: manager,
+        },
+      ],
+    },
+    {
+      id: "tasks",
+      heading: "Tasks and next steps",
+      bullets: [
+        {
+          id: "tk-1",
+          text: "Draft PR template (summary, screenshots, test notes, API changes) and share with the team.",
+          sourceQuote: "I'll draft the PR template and share it with the team by end of week.",
+          sourceSpeaker: engineer,
+        },
+        {
+          id: "tk-2",
+          text: "Post mid-sprint blocker updates in Slack by Wednesday each sprint.",
+          sourceQuote: "I'll commit to posting blocker updates by Wednesday each sprint.",
+          sourceSpeaker: engineer,
+        },
+        {
+          id: "tk-3",
+          text: "Apply the new template on the next three pull requests.",
+          sourceQuote:
+            "I'm thinking: summary, screenshots, test notes, and any API contract changes.",
+          sourceSpeaker: engineer,
+        },
+      ],
+    },
+    {
+      id: "notes",
+      heading: "Notes",
+      bullets: [
+        {
+          id: "n-1",
+          text: `${manager} recommended mid-sprint check-ins even when work is still in progress.`,
+          sourceQuote: "Try mid-sprint check-ins in Slack. Even a two-line status helps the team plan.",
+          sourceSpeaker: manager,
+        },
+      ],
+    },
+  ];
+}
+
+/** Mock chatbot Q&A over transcript content. */
+export function answerTranscriptQuestion(
+  session: CoachingSession,
+  transcript: MeetingTranscript,
+  question: string
+): TranscriptChatMessage {
+  const q = question.toLowerCase();
+  const summary = transcript.summary ?? [];
+
+  const findBullets = (keywords: string[]) => {
+    const bullets: TranscriptSummaryBullet[] = [];
+    for (const section of summary) {
+      for (const b of section.bullets) {
+        if (keywords.some((k) => b.text.toLowerCase().includes(k) || section.heading.toLowerCase().includes(k))) {
+          bullets.push(b);
+        }
+      }
+    }
+    return bullets.slice(0, 4);
+  };
+
+  let bullets: TranscriptSummaryBullet[] = [];
+  let intro = "Here's what I found in the transcript:";
+
+  if (q.includes("milestone") || q.includes("agree")) {
+    bullets = findBullets(["milestone", "template", "turnaround"]);
+    intro = "Milestones discussed in this session:";
+  } else if (q.includes("task") || q.includes("next") || q.includes("step")) {
+    bullets = findBullets(["task", "draft", "template", "blocker", "apply"]);
+    intro = "Tasks and next steps from the conversation:";
+  } else if (q.includes("problem") || q.includes("issue") || q.includes("pr")) {
+    bullets = findBullets(["problem", "pr", "context", "review", "blocker"]);
+    intro = "Problems and themes raised:";
+  } else if (q.includes("manager") || q.includes(session.managerName.toLowerCase())) {
+    const managerLines = transcript.lines.filter((l) => l.speaker === "manager");
+    bullets = managerLines.slice(0, 3).map((l, i) => ({
+      id: `mgr-${i}`,
+      text: l.text,
+      sourceQuote: l.text,
+      sourceSpeaker: l.speakerName,
+    }));
+    intro = `Key points from ${session.managerName}:`;
+  } else {
+    bullets = summary.flatMap((s) => s.bullets).slice(0, 4);
+    intro = "Based on the full transcript summary:";
+  }
+
+  if (bullets.length === 0) {
+    bullets = [
+      {
+        id: "fallback",
+        text: "No specific match found. Try asking about milestones, tasks, problems, or what the manager said.",
+        sourceQuote: transcript.lines[0]?.text ?? session.description,
+        sourceSpeaker: transcript.lines[0]?.speakerName ?? session.managerName,
+      },
+    ];
+  }
+
+  return {
+    id: `chat-${Date.now()}`,
+    role: "assistant",
+    question,
+    intro,
+    bullets,
+  };
+}
+
+/** @deprecated Board is filled manually — no auto-draft from transcript. */
 export function draftBoardFromTranscript(
   session: CoachingSession,
   board: MeetingBoard
@@ -632,6 +940,136 @@ export const initialSessions: CoachingSession[] = [
       notes:
         "Reviewed the initial implementation and the causes of the mid-feature rewrite. Agreed to introduce a lightweight design outline step and a design-summary section in PRs.",
     },
+    boardApprovalStatus: "pending",
+    savedToSessionsAt: "2026-07-18T15:00:00.000Z",
+    transcript: {
+      lines: buildLiveTranscriptScript({
+        id: "cs-history-1",
+        managerId: "bruce",
+        managerName: "Bruce Wayne",
+        role: "Project Lead",
+        date: "Fri, July 18th",
+        timeSlot: "3:00pm, 3:30pm",
+        priorityId: "high",
+        description: "Reviewed strategic scoping for the analytics initiative.",
+        category: "Innovative and Strategic Thinking",
+        suggestions: [],
+        goals: ["Define phase milestones"],
+        status: "history",
+      }).map((l, i) => ({ ...l, id: `tl-h-${i}` })),
+      summary: generateTranscriptSummary(
+        {
+          id: "cs-history-1",
+          managerId: "bruce",
+          managerName: "Bruce Wayne",
+          role: "Project Lead",
+          date: "Fri, July 18th",
+          timeSlot: "3:00pm, 3:30pm",
+          priorityId: "high",
+          description: "Reviewed strategic scoping for the analytics initiative.",
+          category: "Innovative and Strategic Thinking",
+          suggestions: [],
+          goals: ["Define phase milestones"],
+          status: "history",
+        },
+        []
+      ),
+      chatHistory: [],
+      summarizedAt: "2026-07-18T15:30:00.000Z",
+    },
+  },
+  {
+    id: "cs-archive-draft-1",
+    managerId: "sarah",
+    managerName: "Sarah Connor",
+    role: "Team Lead",
+    date: "Mon, July 7th",
+    timeSlot: "2:00pm, 2:30pm",
+    priorityId: "medium",
+    description:
+      "PR documentation coaching session — partial board saved as draft after leaving without sending approval.",
+    category: "Engineering Excellence",
+    suggestions: [],
+    goals: ["Agree on PR template"],
+    status: "history",
+    boardApprovalStatus: "draft",
+    savedToSessionsAt: "2026-07-07T14:30:00.000Z",
+    board: {
+      challenge: "PR documentation needs more context before review",
+      description:
+        "Deep dive on improving PR documentation and review turnaround with Sarah Connor.",
+      attachedPatterns: [],
+      desiredOutcome: "Agree on a PR description template",
+      sessionType: "first",
+      priorItems: [],
+      previousSummary: "",
+      aiAgenda: ["Walk through recent PRs", "Agree on template"],
+      format: "remote",
+      problemStatement: "Reviewers need more context on pull requests before review.",
+      alignment: "agreed",
+      milestones: [],
+      tasks: [],
+      attendance: "both-present",
+      notes: "",
+    },
+    transcript: {
+      lines: buildLiveTranscriptScript({
+        id: "cs-archive-draft-1",
+        managerId: "sarah",
+        managerName: "Sarah Connor",
+        role: "Team Lead",
+        date: "Mon, July 7th",
+        timeSlot: "2:00pm, 2:30pm",
+        priorityId: "medium",
+        description: "PR documentation coaching",
+        category: "Engineering Excellence",
+        suggestions: [],
+        goals: ["Agree on PR template"],
+        status: "history",
+      }).map((l, i) => ({ ...l, id: `tl-d-${i}` })),
+      summary: generateTranscriptSummary(
+        {
+          id: "cs-archive-draft-1",
+          managerId: "sarah",
+          managerName: "Sarah Connor",
+          role: "Team Lead",
+          date: "Mon, July 7th",
+          timeSlot: "2:00pm, 2:30pm",
+          priorityId: "medium",
+          description: "PR documentation coaching",
+          category: "Engineering Excellence",
+          suggestions: [],
+          goals: ["Agree on PR template"],
+          status: "history",
+        },
+        []
+      ),
+      chatHistory: [],
+      summarizedAt: "2026-07-07T14:25:00.000Z",
+    },
+  },
+  {
+    id: "cs-pending-booked-1",
+    managerId: "mikel",
+    managerName: "Mikel Williams",
+    role: "Project Manager",
+    date: "Thu, August 7th",
+    timeSlot: "3:00pm, 3:30pm",
+    priorityId: "high",
+    description:
+      "Booked follow-up to review sprint planning habits and earlier blocker communication. We'll walk through recent standups and agree on a lightweight update cadence.",
+    category: "Trust and Integrity",
+    suggestions: [
+      {
+        id: "p2",
+        tag: "Trust and Integrity",
+        tone: "brand",
+        text: "Progress is often shared late in the sprint. Post smaller, earlier updates so the team can plan and unblock work sooner.",
+      },
+    ],
+    goals: ["Share blockers earlier", "Post mid-sprint progress updates"],
+    status: "pending",
+    isPermanentDemo: true,
   },
   {
     id: "cs-active-followup-1",
@@ -647,5 +1085,6 @@ export const initialSessions: CoachingSession[] = [
     suggestions: [],
     goals: ["Confirm template is working", "Identify remaining gaps"],
     status: "pending",
+    isPermanentDemo: true,
   },
 ];

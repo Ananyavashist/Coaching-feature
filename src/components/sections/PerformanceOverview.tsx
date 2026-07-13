@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowRight, BarChartSquare02 } from "@untitledui/icons";
 import { Card } from "../ui/Card";
 import {
@@ -13,6 +13,29 @@ const VERTICES = {
   trust: { x: 42, y: 218 },
   innovation: { x: 258, y: 218 },
 } as const;
+
+const LABEL_GAP = 10;
+
+const labelPlacement: Record<
+  keyof typeof VERTICES,
+  {
+    dx: number;
+    dy: number;
+    anchor: "middle" | "start" | "end";
+    baseline: "text-after-edge" | "hanging";
+    lines?: string[];
+  }
+> = {
+  engineering: { dx: 0, dy: -LABEL_GAP, anchor: "middle", baseline: "text-after-edge" },
+  trust: { dx: 0, dy: LABEL_GAP, anchor: "middle", baseline: "hanging" },
+  innovation: {
+    dx: 0,
+    dy: LABEL_GAP,
+    anchor: "middle",
+    baseline: "hanging",
+    lines: ["Innovation & Strategic", "Thinking"],
+  },
+};
 
 function dataPoint(id: keyof typeof VERTICES, value: number) {
   const v = VERTICES[id];
@@ -30,31 +53,42 @@ function TriangleChart({
   selectedId: string;
   onSelect: (id: string) => void;
 }) {
-  const engineering = performanceCategories.find((c) => c.id === "engineering")!;
-  const trust = performanceCategories.find((c) => c.id === "trust")!;
-  const innovation = performanceCategories.find((c) => c.id === "innovation")!;
+  const values = useMemo(
+    () =>
+      Object.fromEntries(
+        performanceCategories.map((c) => [c.id, c.value])
+      ) as Record<string, number>,
+    []
+  );
 
-  const p1 = dataPoint("engineering", engineering.value);
-  const p2 = dataPoint("trust", trust.value);
-  const p3 = dataPoint("innovation", innovation.value);
-  const fillPoints = `${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}`;
+  const dataPoints = useMemo(
+    () => ({
+      engineering: dataPoint("engineering", values.engineering),
+      trust: dataPoint("trust", values.trust),
+      innovation: dataPoint("innovation", values.innovation),
+    }),
+    [values]
+  );
 
-  const labels: { id: keyof typeof VERTICES; x: number; y: number; anchor: string }[] = [
-    { id: "engineering", x: 150, y: 12, anchor: "middle" },
-    { id: "trust", x: 8, y: 232, anchor: "start" },
-    { id: "innovation", x: 292, y: 232, anchor: "end" },
-  ];
+  const fillPoints = `${dataPoints.engineering.x},${dataPoints.engineering.y} ${dataPoints.trust.x},${dataPoints.trust.y} ${dataPoints.innovation.x},${dataPoints.innovation.y}`;
+
+  const vertexIds = Object.keys(VERTICES) as (keyof typeof VERTICES)[];
 
   return (
-    <svg viewBox="0 0 300 250" className="mx-auto h-auto w-full max-w-sm outline-none [&_*]:outline-none" role="img">
-      {/* Outer triangle */}
+    <svg
+      viewBox="0 0 300 285"
+      preserveAspectRatio="xMidYMid meet"
+      overflow="visible"
+      className="mx-auto h-full w-full max-h-[320px] max-w-[340px] outline-none [&_*]:outline-none"
+      role="img"
+      aria-label="Performance radar chart"
+    >
       <polygon
         points={`${VERTICES.engineering.x},${VERTICES.engineering.y} ${VERTICES.trust.x},${VERTICES.trust.y} ${VERTICES.innovation.x},${VERTICES.innovation.y}`}
         fill="none"
         stroke="#EAECF0"
         strokeWidth="1.5"
       />
-      {/* Mid guides */}
       {[0.33, 0.66].map((t) => {
         const e = {
           x: CENTER.x + (VERTICES.engineering.x - CENTER.x) * t,
@@ -78,13 +112,54 @@ function TriangleChart({
           />
         );
       })}
-      {/* Data fill */}
-      <polygon points={fillPoints} fill="#5048EF" fillOpacity="0.18" stroke="#5048EF" strokeWidth="2" />
-      {/* Click targets at vertices */}
-      {labels.map(({ id, x, y }) => {
+
+      {vertexIds.map((id) => {
+        const dp = dataPoints[id];
+        const active = selectedId === id;
+        return (
+          <line
+            key={`spoke-${id}`}
+            x1={CENTER.x}
+            y1={CENTER.y}
+            x2={dp.x}
+            y2={dp.y}
+            stroke={active ? "#5048EF" : "#E4E7EC"}
+            strokeWidth={active ? 2 : 1}
+            className="transition-all duration-300"
+          />
+        );
+      })}
+
+      <polygon
+        key={selectedId}
+        points={fillPoints}
+        fill="#5048EF"
+        fillOpacity="0.18"
+        stroke="#5048EF"
+        strokeWidth="2"
+        className="transition-all duration-300"
+      />
+
+      {vertexIds.map((id) => {
+        const dp = dataPoints[id];
+        const active = selectedId === id;
+        return (
+          <circle
+            key={`data-${id}`}
+            cx={dp.x}
+            cy={dp.y}
+            r={active ? 5 : 3}
+            fill="#5048EF"
+            className="pointer-events-none transition-all duration-300"
+          />
+        );
+      })}
+
+      {vertexIds.map((id) => {
         const cat = performanceCategories.find((c) => c.id === id)!;
         const active = selectedId === id;
         const vx = VERTICES[id];
+        const place = labelPlacement[id];
         return (
           <g key={id}>
             <circle
@@ -101,17 +176,26 @@ function TriangleChart({
               cy={vx.y}
               r={active ? 4 : 2}
               fill={active ? "#5048EF" : "#D0D5DD"}
-              className="pointer-events-none transition-all"
+              className="pointer-events-none transition-all duration-300"
             />
             <text
-              x={x}
-              y={y}
-              textAnchor={labels.find((l) => l.id === id)!.anchor as "middle" | "start" | "end"}
+              x={vx.x + place.dx}
+              y={vx.y + place.dy}
+              textAnchor={place.anchor}
+              dominantBaseline={place.baseline}
               className="cursor-pointer select-none fill-gray-700 text-[11px] font-semibold outline-none"
               onClick={() => onSelect(id)}
               tabIndex={-1}
             >
-              {cat.label}
+              {place.lines ? (
+                place.lines.map((line, i) => (
+                  <tspan key={line} x={vx.x + place.dx} dy={i === 0 ? 0 : 13}>
+                    {line}
+                  </tspan>
+                ))
+              ) : (
+                cat.label
+              )}
             </text>
           </g>
         );
@@ -156,8 +240,8 @@ export function PerformanceOverview() {
         <h3 className="text-base font-semibold text-gray-900">Performance Overview</h3>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 p-5 lg:grid-cols-2">
-        <div className="flex items-center justify-center py-2">
+      <div className="grid grid-cols-1 items-center gap-6 p-5 lg:grid-cols-2">
+        <div className="flex min-h-[280px] items-center justify-center overflow-visible py-2">
           <TriangleChart selectedId={selectedId} onSelect={setSelectedId} />
         </div>
         <CategoryDetail category={selected} />

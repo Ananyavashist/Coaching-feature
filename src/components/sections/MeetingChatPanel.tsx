@@ -87,13 +87,13 @@ export function MeetingChatPanel({ session }: { session: CoachingSession }) {
             }}
             placeholder="Type a message…"
             aria-label="Chat message"
-            className="h-11 flex-1 rounded-lg border border-gray-300 px-3.5 text-sm text-gray-900 placeholder:text-gray-500 focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100"
+            className="h-11 flex-1 rounded-lg border border-gray-300 px-3.5 text-sm text-gray-900 placeholder:text-gray-500 focus:border-brand-500 focus:outline-none"
           />
           <button
             type="button"
             onClick={send}
             aria-label="Send message"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gray-900 text-white hover:bg-gray-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-gray-300"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gray-900 text-white hover:bg-gray-800 focus:outline-none"
           >
             <Send01 className="h-5 w-5" />
           </button>

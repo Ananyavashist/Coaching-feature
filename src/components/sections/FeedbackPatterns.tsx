@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowUpRight, SwitchHorizontal01 } from "@untitledui/icons";
+import { SwitchHorizontal01 } from "@untitledui/icons";
 import { Card, CardHeader } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
@@ -22,7 +22,7 @@ function BubbleLabel({ text, pos }: { text: string; pos: FeedbackPattern["labelP
   return (
     <span
       className={cn(
-        "pointer-events-none absolute z-20 block w-max max-w-[11rem] rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-center text-xs font-medium leading-snug text-gray-700",
+        "pointer-events-none absolute z-20 block w-max max-w-[11rem] rounded-[6px] border border-gray-200 bg-white px-2.5 py-1.5 text-center text-xs font-medium leading-snug text-gray-700",
         tagOffset[pos]
       )}
     >
@@ -43,8 +43,14 @@ function BubbleChart() {
         return (
           <div
             key={b.id}
-            className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${b.x}%`, top: `${b.y}%`, width: d, height: d }}
+            className="absolute"
+            style={{
+              left: `${b.x}%`,
+              top: `${b.y}%`,
+              width: d,
+              height: d,
+              transform: `translate(calc(-50% + ${b.offsetX ?? 0}px), calc(-50% + ${b.offsetY ?? 0}px))`,
+            }}
           >
             <BubbleLabel text={b.label} pos={b.labelPos} />
             <div
@@ -101,7 +107,7 @@ export function FeedbackPatterns({
 
   const handleInitiate = () => {
     const chosen = topFeedback.filter((f) => selected.includes(f.id));
-    onInitiateCoaching((chosen.length ? chosen : topFeedback).map(toSuggestion));
+    onInitiateCoaching(chosen.map(toSuggestion));
   };
 
   return (
@@ -109,12 +115,6 @@ export function FeedbackPatterns({
       <CardHeader
         title="Patterns recognized from feedback"
         subtitle="Patterns recognised in the visualization are derived from platform and peer feedback together."
-        action={
-          <Button variant="secondary" size="sm">
-            View in Detail
-            <ArrowUpRight className="h-4.5 w-4.5" />
-          </Button>
-        }
       />
 
       <div className="p-5 pt-4">
@@ -135,7 +135,7 @@ export function FeedbackPatterns({
         <div className="mt-5 rounded-xl border border-gray-200 bg-white p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h4 className="text-base font-semibold text-gray-900">Feedback Insights</h4>
-            <Button size="sm" onClick={handleInitiate}>
+            <Button size="sm" onClick={handleInitiate} disabled={selected.length === 0}>
               Initiate Coaching
             </Button>
           </div>

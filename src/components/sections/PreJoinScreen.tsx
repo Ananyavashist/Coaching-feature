@@ -4,13 +4,26 @@ import {
   Microphone01,
   VideoRecorderOff,
   VideoRecorder,
-  Stars02,
   ArrowLeft,
   MessageChatCircle,
+  InfoCircle,
 } from "@untitledui/icons";
 import { Button } from "../ui/Button";
-import { cn } from "../../lib/utils";
 import { currentUser, type CoachingSession } from "../../data/dashboard";
+
+function AiTranscriptNotice({ className }: { className?: string }) {
+  return (
+    <div
+      className={`flex items-start gap-2.5 rounded-[6px] border border-brand-200 bg-brand-50 px-3.5 py-2.5 ${className ?? ""}`}
+      role="status"
+    >
+      <InfoCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
+      <p className="text-[13px] leading-relaxed text-brand-800">
+        AI is transcribing this session in the background to capture notes and key takeaways.
+      </p>
+    </div>
+  );
+}
 
 export function PreJoinScreen({
   session,
@@ -24,7 +37,6 @@ export function PreJoinScreen({
   const [muted, setMuted] = useState(true);
   const [videoOn, setVideoOn] = useState(false);
   const [goBy, setGoBy] = useState(currentUser.name);
-  const [transcript, setTranscript] = useState(false);
 
   return (
     <div className="fixed inset-0 z-[60] flex min-h-screen flex-col overflow-y-auto bg-white">
@@ -38,84 +50,76 @@ export function PreJoinScreen({
         </button>
       </div>
 
-      <div className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 items-center gap-8 px-4 py-16 sm:px-8 lg:grid-cols-[1.4fr_1fr]">
-        {/* Video preview */}
-        <div className="relative flex aspect-video w-full items-center justify-center rounded-2xl bg-gray-100">
-          {videoOn ? (
-            <div className="flex flex-col items-center gap-2 text-gray-400">
-              <VideoRecorder className="h-8 w-8" />
-              <span className="text-sm">Camera preview</span>
-            </div>
-          ) : (
-            <span className="text-2xl font-medium text-gray-500">{goBy}</span>
-          )}
-
-          <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-3">
-            <button
-              onClick={() => setMuted((m) => !m)}
-              className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              {muted ? (
-                <MicrophoneOff01 className="h-4.5 w-4.5 text-gray-500" />
-              ) : (
-                <Microphone01 className="h-4.5 w-4.5 text-gray-500" />
-              )}
-              {muted ? "Unmute" : "Mute"}
-            </button>
-            <button
-              onClick={() => setVideoOn((v) => !v)}
-              className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
+      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-8 px-4 py-16 sm:px-8 lg:flex-row lg:items-center lg:gap-10">
+        {/* Video preview — balanced height with right column */}
+        <div className="flex w-full justify-center lg:w-1/2">
+          <div className="relative flex aspect-[4/3] w-full max-w-md flex-col rounded-2xl bg-gray-100 lg:aspect-auto lg:min-h-[360px] lg:max-w-lg">
+            <div className="flex flex-1 items-center justify-center px-6">
               {videoOn ? (
-                <VideoRecorder className="h-4.5 w-4.5 text-gray-500" />
+                <div className="flex flex-col items-center gap-2 text-gray-400">
+                  <VideoRecorder className="h-8 w-8" />
+                  <span className="text-sm">Camera preview</span>
+                </div>
               ) : (
-                <VideoRecorderOff className="h-4.5 w-4.5 text-gray-500" />
+                <span className="text-center text-2xl font-medium text-gray-500">{goBy}</span>
               )}
-              {videoOn ? "Stop video" : "Start video"}
-            </button>
+            </div>
+
+            <div className="flex shrink-0 items-center justify-center gap-3 px-4 pb-5 pt-2">
+              <button
+                type="button"
+                onClick={() => setMuted((m) => !m)}
+                className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus-visible:border-brand-500"
+              >
+                {muted ? (
+                  <MicrophoneOff01 className="h-4 w-4 text-gray-500" />
+                ) : (
+                  <Microphone01 className="h-4 w-4 text-gray-500" />
+                )}
+                {muted ? "Unmute" : "Mute"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setVideoOn((v) => !v)}
+                className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus-visible:border-brand-500"
+              >
+                {videoOn ? (
+                  <VideoRecorder className="h-4 w-4 text-gray-500" />
+                ) : (
+                  <VideoRecorderOff className="h-4 w-4 text-gray-500" />
+                )}
+                {videoOn ? "Stop video" : "Start video"}
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Join panel */}
-        <div className="w-full">
-          <p className="mb-3 text-left text-[18px] font-semibold text-gray-900">
+        {/* Session details */}
+        <div className="flex w-full flex-col lg:w-1/2">
+          <h1 className="text-left text-xl font-semibold text-gray-900 sm:text-[22px]">
             Coaching session with {session.managerName}
-          </p>
+          </h1>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-5">
+          <AiTranscriptNotice className="mt-4" />
+
+          <div className="mt-4 rounded-xl border border-gray-200 bg-white p-5">
             <h2 className="text-base font-semibold text-gray-900">Ready to join?</h2>
-            <p className="mt-1.5 text-[14px] leading-relaxed text-gray-600">
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">
               This meeting is shared between you and {session.managerName} and will not be used
               for performance evaluation, this is solely for your growth and learning.
             </p>
-            <p className="mt-3 text-[14px] leading-relaxed text-gray-600">
-              You're signed in. You can optionally update how you appear in this meeting.
-            </p>
 
-            <label className="mt-4 block text-[14px] font-medium text-gray-700">
+            <label className="mt-5 block text-sm font-semibold text-gray-700">
               What would you like to go by?
             </label>
             <input
               value={goBy}
               onChange={(e) => setGoBy(e.target.value)}
-              className="mt-1.5 h-11 w-full rounded-lg border border-gray-300 px-3.5 text-[14px] text-gray-900 focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100"
+              className="mt-2 h-11 w-full rounded-lg border border-gray-300 px-3.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none"
             />
 
-            <div className="mt-4 flex items-center justify-between gap-3">
-              <button
-                onClick={() => setTranscript((t) => !t)}
-                className={cn(
-                  "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
-                  transcript
-                    ? "border-brand-300 bg-brand-50 text-brand-700"
-                    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                )}
-              >
-                <Stars02 className="h-4.5 w-4.5" />
-                {transcript ? "AI transcript on" : "Enable AI transcript"}
-              </button>
-
-              <Button onClick={() => onJoin({ transcript, goBy })}>
+            <div className="mt-5 flex justify-end">
+              <Button onClick={() => onJoin({ transcript: true, goBy })}>
                 <MessageChatCircle className="h-4.5 w-4.5" />
                 Join now
               </Button>

@@ -115,7 +115,7 @@ function DiscussItemsSection({
                 type="checkbox"
                 checked={selectedIds.has(item.id)}
                 onChange={() => onToggle(item.id)}
-                className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-brand-600"
               />
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-1.5">
@@ -321,6 +321,7 @@ export function CreateSessionModal({
       discussTasks: [...pickedTasks, ...customTasks],
       status: "pending",
       createdDuringMeeting: true,
+      submittedViaForm: true,
     });
     onClose();
   };
@@ -525,7 +526,7 @@ export function CreateSessionModal({
                       }
                     }}
                     placeholder="Add a milestone for the next meeting"
-                    className="h-10 w-full rounded-lg border border-gray-300 px-3 text-sm text-gray-700 placeholder:text-gray-500 focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100"
+                    className="h-10 w-full rounded-lg border border-gray-300 px-3 text-sm text-gray-700 placeholder:text-gray-500 focus:border-brand-500 focus:outline-none"
                   />
                   <button
                     onClick={addCustomMilestone}
@@ -546,7 +547,7 @@ export function CreateSessionModal({
                       }
                     }}
                     placeholder="Add a task for the next meeting"
-                    className="h-10 w-full rounded-lg border border-gray-300 px-3 text-sm text-gray-700 placeholder:text-gray-500 focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100"
+                    className="h-10 w-full rounded-lg border border-gray-300 px-3 text-sm text-gray-700 placeholder:text-gray-500 focus:border-brand-500 focus:outline-none"
                   />
                   <button
                     onClick={addCustomTask}
@@ -567,7 +568,7 @@ export function CreateSessionModal({
               onChange={(e) => setAgenda(e.target.value)}
               rows={4}
               placeholder="What would you like to cover in the follow-up session?"
-              className="w-full resize-none rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-700 placeholder:text-gray-500 focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100"
+              className="w-full resize-none rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-700 placeholder:text-gray-500 focus:border-brand-500 focus:outline-none"
             />
           </div>
 
@@ -600,7 +601,7 @@ export function CreateSessionModal({
                   }
                 }}
                 placeholder="Add notes"
-                className="h-11 w-full rounded-lg border border-gray-300 px-3.5 text-sm text-gray-700 placeholder:text-gray-500 focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100"
+                className="h-11 w-full rounded-lg border border-gray-300 px-3.5 text-sm text-gray-700 placeholder:text-gray-500 focus:border-brand-500 focus:outline-none"
               />
               <button
                 onClick={addGoal}

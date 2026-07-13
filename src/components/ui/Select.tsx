@@ -46,7 +46,8 @@ export function Select({
         aria-haspopup="listbox"
         aria-expanded={open}
         className={cn(
-          "flex w-full items-center justify-between gap-2 rounded-lg border border-gray-300 bg-white px-3.5 text-left text-sm text-gray-900 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-100",
+          "flex w-full items-center justify-between gap-2 rounded-lg border border-gray-300 bg-white px-3.5 text-left text-sm text-gray-900 transition-colors hover:bg-gray-50 focus:outline-none focus-visible:border-brand-500",
+          open && "border-brand-500",
           size === "lg" ? "h-11" : "h-10"
         )}
       >

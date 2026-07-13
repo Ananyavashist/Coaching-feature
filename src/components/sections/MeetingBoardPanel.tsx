@@ -101,7 +101,7 @@ function TextBlock({
       rows={rows}
       placeholder={placeholder}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100"
+      className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none"
     />
   );
 }
@@ -273,7 +273,7 @@ export function MeetingBoardPanel({
                               ),
                             })
                           }
-                          className="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                          className="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-600"
                         />
                         <span
                           className={cn(
@@ -395,6 +395,7 @@ export function MeetingBoardPanel({
             />
           </Card>
 
+          {!isLive ? (
           <Card icon={<Calendar className="h-4.5 w-4.5" />} title="AI-suggested agenda">
             <p className="mb-2 text-xs italic text-gray-400">
               Suggested starting point — edit as needed.
@@ -404,7 +405,7 @@ export function MeetingBoardPanel({
                 value={board.aiAgenda.join("\n")}
                 rows={4}
                 onChange={(e) => update({ aiAgenda: e.target.value.split("\n") })}
-                className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100"
+                className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none"
               />
             ) : (
               <ul className="space-y-1.5">
@@ -417,9 +418,10 @@ export function MeetingBoardPanel({
               </ul>
             )}
           </Card>
+          ) : null}
 
           <Card icon={<FileCheck02 className="h-4.5 w-4.5" />} title="Session notes">
-            {capturedEditable ? (
+            {!isLive && capturedEditable ? (
               <p className="mb-2 flex items-center gap-1.5 text-xs italic text-gray-400">
                 <Stars02 className="h-3.5 w-3.5" />
                 AI drafts these when you stop the transcript — review before saving.
@@ -479,7 +481,7 @@ function ListEditor<T extends Row>({
               checked={r.done}
               disabled={!editable}
               onChange={(e) => onToggle(r.id, e.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+              className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-600"
             />
             <div className="min-w-0 flex-1">
               {editable ? (
@@ -487,7 +489,7 @@ function ListEditor<T extends Row>({
                   value={r.text}
                   onChange={(e) => onText(r.id, e.target.value)}
                   placeholder="Describe the item"
-                  className="w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-sm text-gray-700 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                  className="w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-sm text-gray-700 focus:border-brand-500 focus:outline-none"
                 />
               ) : (
                 <p
@@ -513,7 +515,7 @@ function ListEditor<T extends Row>({
                       value={getDate(r)}
                       onChange={(e) => setDate(r.id, e.target.value)}
                       placeholder={dateLabel}
-                      className="h-10 w-40 rounded-lg border border-gray-300 px-3 text-sm text-gray-700 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                      className="h-10 w-40 rounded-lg border border-gray-300 px-3 text-sm text-gray-700 focus:border-brand-500 focus:outline-none"
                     />
                   </>
                 ) : (

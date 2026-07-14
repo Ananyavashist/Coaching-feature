@@ -3,7 +3,7 @@ import { XClose, Plus, Flag01, ClockRewind, ArrowUpRight } from "@untitledui/ico
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
 import { Select, type SelectOption } from "../ui/Select";
-import { cn } from "../../lib/utils";
+import { FloatingOverlayBackdrop, FloatingOverlayPanel } from "../ui/FloatingOverlay";
 import { useClickOutside } from "../../lib/useClickOutside";
 import {
   coaches,
@@ -146,27 +146,11 @@ export function CoachingOverlay({
 
   return (
     <>
-      <div
-        className={cn(
-          "fixed inset-0 z-40 bg-gray-900/40 transition-opacity duration-300",
-          open ? "opacity-100" : "pointer-events-none opacity-0"
-        )}
-        onClick={onClose}
-        aria-hidden={!open}
-      />
+      <FloatingOverlayBackdrop open={open} onClose={onClose} />
 
-      <aside
-        role="dialog"
-        aria-modal="true"
-        aria-label="Request a Coaching Session"
-        className={cn(
-          "fixed inset-y-0 right-0 z-50 flex w-full flex-col border-l border-gray-200 bg-white transition-transform duration-300 ease-out",
-          "sm:w-[480px] lg:w-[calc((100vw-16rem)/2)] lg:min-w-[420px]",
-          open ? "translate-x-0" : "translate-x-full"
-        )}
-      >
+      <FloatingOverlayPanel open={open} ariaLabel="Request a Coaching Session" width="md">
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-5 py-4">
           <div className="flex items-center gap-2.5">
             <h2 className="text-lg font-semibold text-gray-900">Request a Coaching Session</h2>
             <Badge tone="brand">
@@ -184,7 +168,7 @@ export function CoachingOverlay({
         </div>
 
         {/* Body */}
-        <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5">
           <div>
             <Label required>Send this request to</Label>
             <Select
@@ -340,7 +324,7 @@ export function CoachingOverlay({
         </div>
 
         {/* Footer */}
-        <div className="flex flex-col gap-3 border-t border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex shrink-0 flex-col gap-3 border-t border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="flex items-center gap-1.5 text-sm text-gray-500">
             <span className="h-1 w-1 rounded-full bg-gray-400" />
             Will show as pending until manager responds
@@ -350,7 +334,7 @@ export function CoachingOverlay({
             <ArrowUpRight className="h-4.5 w-4.5" />
           </Button>
         </div>
-      </aside>
+      </FloatingOverlayPanel>
     </>
   );
 }

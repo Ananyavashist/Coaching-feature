@@ -3,7 +3,7 @@ import { XClose, Plus, Flag01, ArrowUpRight, CheckSquare } from "@untitledui/ico
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
 import { Select, type SelectOption } from "../ui/Select";
-import { cn } from "../../lib/utils";
+import { FloatingOverlayBackdrop, FloatingOverlayPanel } from "../ui/FloatingOverlay";
 import { useClickOutside } from "../../lib/useClickOutside";
 import {
   coaches,
@@ -334,23 +334,14 @@ export function CreateSessionModal({
 
   return (
     <>
-      <div
-        className={cn(
-          "fixed inset-0 z-[70] bg-gray-900/50 transition-opacity duration-200",
-          open ? "opacity-100" : "pointer-events-none opacity-0"
-        )}
-        onClick={onClose}
-        aria-hidden={!open}
-      />
+      <FloatingOverlayBackdrop open={open} onClose={onClose} zIndex={70} />
 
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Schedule a new coaching session"
-        className={cn(
-          "fixed left-1/2 top-1/2 z-[71] flex max-h-[90vh] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white transition-all duration-200",
-          open ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"
-        )}
+      <FloatingOverlayPanel
+        open={open}
+        side="center"
+        ariaLabel="Schedule a new coaching session"
+        zIndex={71}
+        className="max-w-lg"
       >
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
           <h2 className="text-base font-semibold text-gray-900">
@@ -640,7 +631,7 @@ export function CreateSessionModal({
             <ArrowUpRight className="h-4.5 w-4.5" />
           </Button>
         </div>
-      </div>
+      </FloatingOverlayPanel>
     </>
   );
 }

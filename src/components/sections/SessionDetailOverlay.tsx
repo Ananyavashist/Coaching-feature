@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { XClose, Download01 } from "@untitledui/icons";
 import { Button } from "../ui/Button";
-import { cn } from "../../lib/utils";
+import { FloatingOverlayBackdrop, FloatingOverlayPanel } from "../ui/FloatingOverlay";
 import { MeetingBoardPanel } from "./MeetingBoardPanel";
 import { buildBoard, type CoachingSession } from "../../data/dashboard";
 
@@ -70,26 +70,10 @@ export function SessionDetailOverlay({
 
   return (
     <>
-      <div
-        className={cn(
-          "fixed inset-0 z-40 bg-gray-900/40 transition-opacity duration-300",
-          open ? "opacity-100" : "pointer-events-none opacity-0"
-        )}
-        onClick={onClose}
-        aria-hidden={!open}
-      />
+      <FloatingOverlayBackdrop open={open} onClose={onClose} />
 
-      <aside
-        role="dialog"
-        aria-modal="true"
-        aria-label="Session details"
-        className={cn(
-          "fixed inset-y-0 right-0 z-50 flex w-full flex-col border-l border-gray-200 bg-white transition-transform duration-300 ease-out",
-          "sm:w-[520px] lg:w-[calc((100vw-16rem)/2)] lg:min-w-[440px]",
-          open ? "translate-x-0" : "translate-x-full"
-        )}
-      >
-        <div className="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-4">
+      <FloatingOverlayPanel open={open} ariaLabel="Session details" width="lg">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-5 py-4">
           <h2 className="text-lg font-semibold text-gray-900">Session details</h2>
           <div className="flex items-center gap-1">
             {isHistory && session ? (
@@ -112,7 +96,7 @@ export function SessionDetailOverlay({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-5">
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
           {session ? (
             <MeetingBoardPanel
               session={session}
@@ -121,7 +105,7 @@ export function SessionDetailOverlay({
             />
           ) : null}
         </div>
-      </aside>
+      </FloatingOverlayPanel>
     </>
   );
 }

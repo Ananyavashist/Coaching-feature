@@ -341,7 +341,7 @@ export function CreateSessionModal({
         side="center"
         ariaLabel="Schedule a new coaching session"
         zIndex={71}
-        className="max-w-lg"
+        className="top-[100px] bottom-[100px] max-h-none -translate-y-0 w-[min(100%-2rem,850px)] max-w-[850px] sm:w-[850px]"
       >
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
           <h2 className="text-base font-semibold text-gray-900">

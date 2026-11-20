@@ -148,7 +148,12 @@ export function CoachingOverlay({
     <>
       <FloatingOverlayBackdrop open={open} onClose={onClose} />
 
-      <FloatingOverlayPanel open={open} ariaLabel="Request a Coaching Session" width="md">
+      <FloatingOverlayPanel
+        open={open}
+        ariaLabel="Request a Coaching Session"
+        width="md"
+        data-tour={open ? "coaching-overlay" : undefined}
+      >
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-5 py-4">
           <div className="flex items-center gap-2.5">

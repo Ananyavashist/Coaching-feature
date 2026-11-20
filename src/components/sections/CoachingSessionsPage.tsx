@@ -1,18 +1,9 @@
 import { useMemo, useState } from "react";
-import {
-  Plus,
-  Calendar,
-  Clock,
-  ChevronRight,
-  ArrowUpRight,
-  InfoCircle,
-  Flag01,
-  MessageChatCircle,
-} from "@untitledui/icons";
+import { Plus, MessageChatCircle } from "@untitledui/icons";
 import { Button } from "../ui/Button";
-import { Badge } from "../ui/Badge";
 import { cn } from "../../lib/utils";
-import { priorities, type CoachingSession, type CoachingStatus } from "../../data/dashboard";
+import { type CoachingSession, type CoachingStatus } from "../../data/dashboard";
+import { CoachingStatusSessionCard } from "./CoachingStatusSessionCard";
 
 const statusTabs: { id: CoachingStatus; label: string }[] = [
   { id: "upcoming", label: "Upcoming" },
@@ -28,125 +19,57 @@ const priorityOrder: CoachingStatus[] = [
   "cancelled",
 ];
 
-function SessionCard({
-  session,
-  onCancel,
-  onJoin,
-  onDetails,
+const listableStatuses: CoachingStatus[] = [
+  "upcoming",
+  "pending",
+  "history",
+  "cancelled",
+];
+
+function CoachingSessionsEmptyState({
+  status,
+  onAddRequest,
 }: {
-  session: CoachingSession;
-  onCancel: (id: string) => void;
-  onJoin: (session: CoachingSession) => void;
-  onDetails: (session: CoachingSession) => void;
+  status: CoachingStatus;
+  onAddRequest: () => void;
 }) {
-  const priority = priorities.find((p) => p.id === session.priorityId);
+  const isUpcomingOrPending = status === "upcoming" || status === "pending";
 
-  // Distinct categories drawn from this session's suggestions.
-  const categoryBadges = Array.from(
-    new Map(session.suggestions.map((s) => [s.tag, s.tone])).entries()
-  ).map(([tag, tone]) => ({ tag, tone }));
+  const title =
+    status === "upcoming"
+      ? "No upcoming sessions yet"
+      : status === "pending"
+        ? "No pending requests"
+        : status === "history"
+          ? "No completed sessions yet"
+          : "No cancelled sessions";
 
-  const showActions = session.status === "upcoming" || session.status === "pending";
-
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5">
-      {categoryBadges.length > 0 ? (
-        <div className="mb-2.5 flex flex-wrap gap-2">
-          {categoryBadges.map((c) => (
-            <Badge key={c.tag} tone={c.tone}>
-              {c.tag}
-            </Badge>
-          ))}
-        </div>
-      ) : null}
-
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="text-base font-semibold text-gray-900">
-          Coaching Session with {session.managerName} ({session.role})
-        </h3>
-        <button
-          onClick={() => onDetails(session)}
-          className="flex shrink-0 items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-800"
-        >
-          Details
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
-
-      <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
-        {priority ? (
-          <Badge tone={priority.tone}>
-            <Flag01 className="mr-1 h-3 w-3" />
-            {priority.label}
-          </Badge>
-        ) : null}
-        <span className="flex items-center gap-1.5 text-sm text-gray-700">
-          <Calendar className="h-4.5 w-4.5 text-gray-500" />
-          {session.date}
-        </span>
-        <span className="flex items-center gap-1.5 text-sm text-gray-700">
-          <Clock className="h-4.5 w-4.5 text-gray-500" />
-          {session.timeSlot}
-        </span>
-      </div>
-
-      <div className="mt-4">
-        <h4 className="text-base font-semibold text-gray-900">Brief Description</h4>
-        <p className="mt-1 text-sm leading-relaxed text-gray-600 line-clamp-2">
-          {session.description}
-        </p>
-      </div>
-
-      {session.status === "pending" ? (
-        <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-brand-50 px-4 py-3">
-          <InfoCircle className="mt-0.5 h-4.5 w-4.5 shrink-0 text-brand-600" />
-          <p className="text-sm text-gray-600">
-            Manager has not accepted the request, status will be updated once the request is
-            accepted
-          </p>
-        </div>
-      ) : null}
-
-      {showActions ? (
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <Button
-            size="md"
-            disabled={session.status === "pending"}
-            onClick={() => onJoin(session)}
-          >
-            Join Meeting
-            <ArrowUpRight className="h-4.5 w-4.5" />
-          </Button>
-          <Button variant="secondary" size="md">
-            Reschedule
-            <Calendar className="h-4.5 w-4.5" />
-          </Button>
-          <button
-            onClick={() => onCancel(session.id)}
-            className="px-2 text-sm font-semibold text-error-600 hover:text-error-700"
-          >
-            Cancel
-          </button>
-        </div>
-      ) : null}
-    </div>
+  const body = isUpcomingOrPending ? (
+    <>
+      Review your feedback patterns on Overview to see where coaching could help. Work with your
+      manager to align on focus areas, then send a new request when you are ready.
+    </>
+  ) : status === "history" ? (
+    <>Finished coaching meetings and their session boards will show up here after you leave a call.</>
+  ) : (
+    <>Sessions you or your manager cancel will appear here for reference.</>
   );
-}
 
-function EmptyState({ status }: { status: CoachingStatus }) {
-  const copy: Record<CoachingStatus, string> = {
-    upcoming: "No upcoming sessions yet. Accepted requests will appear here.",
-    pending: "No pending requests. Start one from the feedback that needs attention.",
-    history: "No completed sessions yet. Finished meetings and their notes land here.",
-    cancelled: "No cancelled sessions.",
-    active: "",
-  };
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-16 text-center">
-      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+    <div className="rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-14 text-center">
+      <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-brand-50 text-brand-600">
         <MessageChatCircle className="h-5 w-5" />
       </div>
-      <p className="mt-3 max-w-xs text-sm text-gray-500">{copy[status]}</p>
+      <h2 className="mt-4 text-base font-semibold text-gray-900">{title}</h2>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-gray-600">{body}</p>
+      {isUpcomingOrPending ? (
+        <div className="mt-6">
+          <Button onClick={onAddRequest} data-tour="coaching-add-request">
+            Add new request
+            <Plus className="h-4.5 w-4.5" />
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -165,7 +88,10 @@ export function CoachingSessionsPage({
   onDetails: (session: CoachingSession) => void;
 }) {
   const [status, setStatus] = useState<CoachingStatus>(
-    () => priorityOrder.find((st) => sessions.some((s) => s.status === st)) ?? "upcoming"
+    () =>
+      priorityOrder.find((st) =>
+        sessions.some((s) => s.status === st)
+      ) ?? "upcoming"
   );
 
   const tabCounts = useMemo(
@@ -179,27 +105,39 @@ export function CoachingSessionsPage({
   );
 
   const visible = useMemo(
-    () => sessions.filter((s) => s.status === status),
+    () =>
+      sessions.filter(
+        (s) => s.status === status && listableStatuses.includes(s.status)
+      ),
     [sessions, status]
+  );
+
+  const firstUpcomingId = useMemo(
+    () => sessions.find((s) => s.status === "upcoming")?.id,
+    [sessions]
   );
 
   return (
     <div className="mx-auto w-full max-w-5xl">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-base font-semibold text-gray-900">Sessions</h1>
-        <Button onClick={onAddRequest} className="w-full sm:w-auto">
+        <Button
+          onClick={onAddRequest}
+          className="w-full sm:w-auto"
+          data-tour="coaching-add-request"
+        >
           Add new request
           <Plus className="h-4.5 w-4.5" />
         </Button>
       </div>
 
-      {/* Status tabs */}
       <div className="mt-5 flex flex-wrap gap-2">
         {statusTabs.map((t) => {
           const active = status === t.id;
           return (
             <button
               key={t.id}
+              type="button"
               onClick={() => setStatus(t.id)}
               className={cn(
                 "rounded-lg border px-4 py-2 text-sm transition-colors",
@@ -217,20 +155,23 @@ export function CoachingSessionsPage({
         })}
       </div>
 
-      {/* Sessions */}
-      <div className="mt-5 space-y-4">
+      <div className="mt-5" data-tour="coaching-sessions-list">
         {visible.length === 0 ? (
-          <EmptyState status={status} />
+          <CoachingSessionsEmptyState status={status} onAddRequest={onAddRequest} />
         ) : (
-          visible.map((s) => (
-            <SessionCard
-              key={s.id}
-              session={s}
-              onCancel={onCancel}
-              onJoin={onJoin}
-              onDetails={onDetails}
-            />
-          ))
+          <div className="flex flex-col gap-5">
+            {visible.map((s) => (
+              <CoachingStatusSessionCard
+                key={s.id}
+                session={s}
+                onCancel={onCancel}
+                onJoin={onJoin}
+                onDetails={onDetails}
+                onAddRequest={onAddRequest}
+                joinTourAnchor={status === "upcoming" && s.id === firstUpcomingId}
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>

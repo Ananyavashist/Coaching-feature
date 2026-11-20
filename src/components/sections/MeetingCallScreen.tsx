@@ -45,6 +45,7 @@ function Control({
   active,
   ariaLabel,
   disabled,
+  dataTour,
 }: {
   icon: ReactNode;
   label: string;
@@ -52,12 +53,14 @@ function Control({
   active?: boolean;
   ariaLabel?: string;
   disabled?: boolean;
+  dataTour?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
+      data-tour={dataTour}
       aria-label={ariaLabel ?? label}
       aria-pressed={active}
       className={cn(
@@ -344,6 +347,7 @@ export function MeetingCallScreen({
               label="Create session"
               onClick={() => setCreateOpen(true)}
               ariaLabel="Create new coaching session"
+              dataTour="meeting-create-session"
             />
             <Control
               icon={<Grid01 />}
@@ -372,6 +376,7 @@ export function MeetingCallScreen({
             <button
               type="button"
               onClick={leave}
+              data-tour="meeting-leave"
               aria-label="Leave meeting"
               className="flex min-w-[72px] flex-col items-center gap-1 rounded-lg border border-transparent bg-error-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-error-700 focus:outline-none focus-visible:border-error-300"
             >
@@ -391,7 +396,10 @@ export function MeetingCallScreen({
         </div>
 
         {boardOpen ? (
-          <div className="relative flex w-full flex-col overflow-hidden border-l border-gray-200 bg-gray-50 lg:w-[30%]">
+          <div
+            className="relative flex w-full flex-col overflow-hidden border-l border-gray-200 bg-gray-50 lg:w-[30%]"
+            data-tour="meeting-board-panel"
+          >
             <div className="border-b border-gray-200 bg-white">
               <div className="flex items-center justify-between px-5 py-2">
                 {transcriptOn ? (
@@ -425,6 +433,7 @@ export function MeetingCallScreen({
                     type="button"
                     role="tab"
                     aria-selected={sideTab === tab.id}
+                    data-tour={tab.id === "transcript" ? "meeting-transcript-tab" : undefined}
                     onClick={() => setSideTab(tab.id)}
                     className={cn(
                       "border-b-2 px-3 py-2.5 text-sm transition-colors focus:outline-none focus-visible:border-brand-500",

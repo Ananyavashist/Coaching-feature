@@ -5,7 +5,7 @@ import { projects } from "../../data/dashboard";
 export function ProjectsAssigned() {
   return (
     <Card>
-      <CardHeader title="Projects assigned during this quarter" />
+      <CardHeader title="Project Assigned" />
       <ul className="space-y-2 p-5 pt-4">
         {projects.map((p) => (
           <li key={p}>

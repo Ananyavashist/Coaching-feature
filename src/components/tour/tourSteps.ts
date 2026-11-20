@@ -19,7 +19,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: "view-pattern",
     title: "Open pattern chart",
-    body: "From Suggestions, Bonnie opens the pattern chart on My Performance. Click View AI Pattern to continue.",
+    body: "From Suggestions, Bonnie opens the pattern chart on My Performance. Click View AI Patterns to continue.",
     target: "view-pattern",
     advance: "clickTarget",
     satisfiesAdvance: (s) => s.view === "my-performance",

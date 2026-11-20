@@ -105,7 +105,7 @@ export const feedbackPatterns: FeedbackPattern[] = [
     size: 132,
     x: 36,
     y: 40,
-    offsetX: -20,
+    offsetX: -30,
     labelPos: "top",
     category: "Engineering Excellence",
     tone: "warning",
@@ -1123,7 +1123,7 @@ export const initialSessions: CoachingSession[] = [
     timeSlot: "2:00pm, 2:30pm",
     priorityId: "medium",
     description:
-      "PR documentation coaching session — partial board saved as draft after leaving without sending approval.",
+      "PR documentation coaching session. Partial board saved as draft after leaving without sending approval.",
     category: "Engineering Excellence",
     suggestions: [],
     goals: ["Agree on PR template"],

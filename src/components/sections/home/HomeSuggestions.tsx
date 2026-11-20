@@ -12,7 +12,7 @@ export function HomeSuggestions({ onViewPattern }: { onViewPattern: () => void }
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-5 py-4">
         <h3 className="text-base font-semibold text-gray-900">Suggestions</h3>
         <Button size="sm" onClick={onViewPattern} data-tour="view-pattern">
-          View AI Pattern
+          View AI Patterns
         </Button>
       </div>
 

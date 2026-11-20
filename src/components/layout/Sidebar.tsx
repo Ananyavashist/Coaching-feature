@@ -42,12 +42,12 @@ function NavLink({
       />
       {!collapsed ? <span className="truncate">{item.label}</span> : null}
       {!collapsed && badge && badge > 0 ? (
-        <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#000000] px-1.5 text-xs font-semibold text-white">
+        <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-md bg-[#000000] text-xs font-semibold text-white">
           {badge}
         </span>
       ) : null}
       {collapsed && badge && badge > 0 ? (
-        <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#000000] px-1 text-[10px] font-semibold text-white">
+        <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-sm bg-[#000000] text-[10px] font-semibold text-white">
           {badge}
         </span>
       ) : null}

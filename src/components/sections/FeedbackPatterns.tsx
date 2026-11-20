@@ -137,7 +137,7 @@ export function FeedbackPatterns({
           data-tour="feedback-insights"
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h4 className="text-base font-semibold text-gray-900">Feedback Insights</h4>
+            <h4 className="text-base font-semibold text-gray-900">Pattern Feedback Insights</h4>
             <Button size="sm" onClick={handleInitiate} disabled={selected.length === 0}>
               Initiate Coaching
             </Button>

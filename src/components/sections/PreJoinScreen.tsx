@@ -102,7 +102,10 @@ export function PreJoinScreen({
 
           <AiTranscriptNotice className="mt-4" />
 
-          <div className="mt-4 rounded-xl border border-gray-200 bg-white p-5">
+          <div
+            className="mt-4 rounded-xl border border-gray-200 bg-white p-5"
+            data-tour="prejoin-ready"
+          >
             <h2 className="text-base font-semibold text-gray-900">Ready to join?</h2>
             <p className="mt-2 text-sm leading-relaxed text-gray-600">
               This meeting is shared between you and {session.managerName} and will not be used
@@ -119,7 +122,10 @@ export function PreJoinScreen({
             />
 
             <div className="mt-5 flex justify-end">
-              <Button onClick={() => onJoin({ transcript: true, goBy })}>
+              <Button
+                data-tour="prejoin-join"
+                onClick={() => onJoin({ transcript: true, goBy })}
+              >
                 <MessageChatCircle className="h-4.5 w-4.5" />
                 Join now
               </Button>

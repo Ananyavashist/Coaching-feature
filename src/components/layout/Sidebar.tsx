@@ -20,6 +20,9 @@ function NavLink({
     <button
       type="button"
       onClick={() => onNavigate?.(item.id)}
+      data-tour={
+        item.id === "coaching" || item.id === "sessions" ? `nav-${item.id}` : undefined
+      }
       title={collapsed ? item.label : undefined}
       className={cn(
         "group relative flex w-full items-center rounded-md py-2 text-left text-sm font-semibold transition-colors",
@@ -53,19 +56,32 @@ function NavLink({
 }
 
 function Brand({ collapsed }: { collapsed?: boolean }) {
+  const mark = (
+    <img
+      src="/aude-mark.png"
+      alt=""
+      className="h-9 w-9 shrink-0 object-contain"
+    />
+  );
+
   if (collapsed) {
     return (
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-900 text-sm font-bold text-white">
-        A
+      <div className="flex h-9 w-9 items-center justify-center" aria-label="Aude Corp">
+        {mark}
       </div>
     );
   }
+
   return (
-    <img
-      src="/aude-logo.png"
-      alt="Aude Corp"
-      className="h-12 w-auto max-w-[160px] object-contain"
-    />
+    <div className="flex items-center gap-2.5" aria-label="Aude Corp Enterprise">
+      {mark}
+      <div className="flex h-9 flex-col justify-center">
+        <span className="text-sm font-semibold leading-5 text-gray-900">Aude Corp</span>
+        <span className="text-[11px] font-medium leading-4 tracking-[0.08em] text-gray-400">
+          ENTERPRISE
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -75,6 +91,7 @@ type SidebarNavProps = {
   coachingCount: number;
   collapsed?: boolean;
   onToggleCollapse?: () => void;
+  onStartTour?: () => void;
 };
 
 export function SidebarContent({
@@ -84,6 +101,7 @@ export function SidebarContent({
   coachingCount,
   collapsed,
   onToggleCollapse,
+  onStartTour,
 }: { onClose?: () => void } & SidebarNavProps) {
   return (
     <div className="flex h-full flex-col bg-white">
@@ -201,6 +219,19 @@ export function SidebarContent({
             </>
           ) : null}
         </div>
+        {onStartTour ? (
+          <button
+            type="button"
+            onClick={onStartTour}
+            className={cn(
+              "mt-3 w-full rounded-lg border border-gray-200 bg-gray-50 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100",
+              collapsed && "px-0 text-xs"
+            )}
+            title={collapsed ? "Start tour" : undefined}
+          >
+            {collapsed ? "Tour" : "Start tour"}
+          </button>
+        ) : null}
       </div>
     </div>
   );
@@ -214,13 +245,14 @@ export function Sidebar({
   coachingCount,
   collapsed = false,
   onToggleCollapse,
+  onStartTour,
 }: {
   mobileOpen: boolean;
   onClose: () => void;
   collapsed?: boolean;
   onToggleCollapse?: () => void;
 } & SidebarNavProps) {
-  const navProps = { activeId, onNavigate, coachingCount, collapsed, onToggleCollapse };
+  const navProps = { activeId, onNavigate, coachingCount, collapsed, onToggleCollapse, onStartTour };
   const desktopWidth = collapsed ? "w-[72px]" : "w-64";
 
   return (

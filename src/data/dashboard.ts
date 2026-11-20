@@ -6,7 +6,7 @@ export type NavItem = {
 };
 
 export const primaryNav: NavItem[] = [
-  { id: "home", label: "Overview", icon: "Home01", active: true },
+  { id: "home", label: "Home", icon: "Home01", active: true },
   { id: "my-performance", label: "My Performance", icon: "BarChartSquare02" },
   { id: "teams", label: "My Teams", icon: "Users01" },
   { id: "coaching", label: "Coaching", icon: "GraduationHat01" },
@@ -333,6 +333,107 @@ export const coachingCategories: string[] = [
   "Innovative and Strategic Thinking",
 ];
 
+export type HomeSuggestionReason = {
+  id: string;
+  text: string;
+  source: "Slack" | "Jira" | "GitHub" | "Peer";
+};
+
+export type HomeSuggestion = {
+  id: string;
+  body: string;
+  goalLabel: string;
+  criteriaLabel: string;
+  generated: string;
+  defaultExpanded?: boolean;
+  reasoning: HomeSuggestionReason[];
+  actionItems: string[];
+};
+
+export const homeSuggestions: HomeSuggestion[] = [
+  {
+    id: "hs-1",
+    body: "Improve clarity in pull request descriptions so reviewers can approve changes faster with fewer back-and-forth comments.",
+    goalLabel: "Engineering Excellence",
+    criteriaLabel: "Code Quality & Review Efficiency",
+    generated: "10/08",
+    reasoning: [],
+    actionItems: [],
+  },
+  {
+    id: "hs-2",
+    body: "Share progress earlier in the sprint so blockers surface before standup and managers can re-prioritize work.",
+    goalLabel: "Trust and Integrity",
+    criteriaLabel: "Communication & Transparency",
+    generated: "10/10",
+    defaultExpanded: true,
+    reasoning: [
+      {
+        id: "r1",
+        text: "Long gaps between updates in team channels during active sprint work.",
+        source: "Slack",
+      },
+      {
+        id: "r2",
+        text: "Stories move to In Progress late in the sprint without mid-week checkpoints.",
+        source: "Jira",
+      },
+      {
+        id: "r3",
+        text: "PRs opened near sprint end with limited context for reviewers.",
+        source: "GitHub",
+      },
+    ],
+    actionItems: [
+      "Share short mid-week updates in the project channel.",
+      "Flag blockers within 24 hours of discovery.",
+      "Add a brief status note when moving Jira tickets.",
+    ],
+  },
+];
+
+export type HomeActionStatus = "up-next" | "on-it" | "nailed-it" | "blocked";
+
+export type HomeActionItem = {
+  id: string;
+  body: string;
+  goalLabel: string;
+  criteriaLabel: string;
+  status: HomeActionStatus;
+  dueDate: string;
+  priority: "High" | "Medium" | "Low";
+};
+
+export const homeActionItems: HomeActionItem[] = [
+  {
+    id: "ha-1",
+    body: "Add a PR template section for testing notes and screenshots before requesting review.",
+    goalLabel: "Engineering Excellence",
+    criteriaLabel: "Code Quality & Review Efficiency",
+    status: "up-next",
+    dueDate: "10/15/2026",
+    priority: "High",
+  },
+  {
+    id: "ha-2",
+    body: "Post a mid-sprint progress update every Wednesday before 2pm.",
+    goalLabel: "Trust and Integrity",
+    criteriaLabel: "Communication & Transparency",
+    status: "up-next",
+    dueDate: "10/16/2026",
+    priority: "Medium",
+  },
+  {
+    id: "ha-3",
+    body: "Document hand-off decisions in the team wiki after each feature merge.",
+    goalLabel: "Innovative and Strategic Thinking",
+    criteriaLabel: "Knowledge Sharing",
+    status: "nailed-it",
+    dueDate: "10/12/2026",
+    priority: "Medium",
+  },
+];
+
 export type CoachingStatus = "upcoming" | "pending" | "active" | "history" | "cancelled";
 
 export type SessionType = "first" | "follow-up";
@@ -442,6 +543,10 @@ export type CoachingSession = {
   boardApprovalStatus?: BoardApprovalStatus;
   transcript?: MeetingTranscript;
   savedToSessionsAt?: string;
+  meetingPlatform?: string;
+  contextRight?: string;
+  dateMeta?: string;
+  timeMeta?: string;
 };
 
 let boardSeq = 0;
@@ -843,6 +948,35 @@ export const initialSessions: CoachingSession[] = [
     ],
     goals: ["Agree on a PR description template", "Reduce review turnaround time"],
     status: "upcoming",
+    meetingPlatform: "Google Meet",
+    contextRight: "In 3 days",
+    dateMeta: "Mon, Aug 2",
+    timeMeta: "2:00–2:30pm",
+  },
+  {
+    id: "cs-upcoming-2",
+    managerId: "bruce",
+    managerName: "Bruce Wayne",
+    role: "Project Lead",
+    date: "Fri, August 9th",
+    timeSlot: "3:00pm, 3:30pm",
+    priorityId: "high",
+    description:
+      "Follow-up on analytics initiative scoping. We'll confirm phase-one milestones, hand-off points, and who owns each workstream before the next sprint.",
+    category: "Innovative and Strategic Thinking",
+    suggestions: [
+      {
+        id: "p3b",
+        tag: "Innovative and Strategic Thinking",
+        tone: "brand",
+        text: "Hand-offs between developers lack shared context.",
+      },
+    ],
+    goals: ["Lock phase-one milestones", "Clarify ownership"],
+    status: "pending",
+    contextRight: "Sent 1 day ago",
+    dateMeta: "Proposed Fri, Aug 9",
+    timeMeta: "3:00–3:30pm",
   },
   {
     id: "cs-history-1",
@@ -853,7 +987,7 @@ export const initialSessions: CoachingSession[] = [
     timeSlot: "3:00pm, 3:30pm",
     priorityId: "high",
     description:
-      "Reviewed strategic scoping for the analytics initiative. Agreed on a phased rollout and clearer ownership boundaries between teams.",
+      "Covered PR documentation and review habits. Agreed a lightweight template, clearer testing notes, and a target review turnaround for the next sprint.",
     category: "Innovative and Strategic Thinking",
     suggestions: [
       {
@@ -865,6 +999,8 @@ export const initialSessions: CoachingSession[] = [
     ],
     goals: ["Define phase milestones", "Clarify cross-team ownership"],
     status: "history",
+    dateMeta: "Mon, Aug 2",
+    timeMeta: "28 min",
     board: {
       challenge: "Struggling with code organization in large features",
       description:
@@ -992,6 +1128,8 @@ export const initialSessions: CoachingSession[] = [
     suggestions: [],
     goals: ["Agree on PR template"],
     status: "history",
+    dateMeta: "Mon, Jul 7",
+    timeMeta: "32 min",
     boardApprovalStatus: "draft",
     savedToSessionsAt: "2026-07-07T14:30:00.000Z",
     board: {
@@ -1070,6 +1208,9 @@ export const initialSessions: CoachingSession[] = [
     goals: ["Share blockers earlier", "Post mid-sprint progress updates"],
     status: "pending",
     isPermanentDemo: true,
+    contextRight: "Sent 2 days ago",
+    dateMeta: "Proposed Thu, Aug 7",
+    timeMeta: "3:00–3:30pm",
   },
   {
     id: "cs-active-followup-1",
@@ -1086,5 +1227,64 @@ export const initialSessions: CoachingSession[] = [
     goals: ["Confirm template is working", "Identify remaining gaps"],
     status: "pending",
     isPermanentDemo: true,
+    contextRight: "Sent 4 days ago",
+    dateMeta: "Proposed Wed, Aug 6",
+    timeMeta: "1:30–2:00pm",
+  },
+  {
+    id: "cs-cancelled-1",
+    managerId: "sarah",
+    managerName: "Sarah Connor",
+    role: "Team Lead",
+    date: "Mon, August 2nd",
+    timeSlot: "2:00pm, 2:30pm",
+    priorityId: "medium",
+    description:
+      "Scheduling conflict on Sarah's side. The session will be re-proposed next week with the same focus on PR documentation and review turnaround.",
+    category: "Engineering Excellence",
+    suggestions: [
+      {
+        id: "p1c",
+        tag: "Engineering Excellence",
+        tone: "warning",
+        text: "Reviewers repeatedly ask for more context on pull requests.",
+      },
+      {
+        id: "p2c",
+        tag: "Trust and Integrity",
+        tone: "brand",
+        text: "Progress is often shared late in the sprint.",
+      },
+    ],
+    goals: ["Agree on a PR description template"],
+    status: "cancelled",
+    contextRight: "by Sarah · Jul 30",
+    dateMeta: "Mon, Aug 2",
+    timeMeta: "2:00–2:30pm",
+  },
+  {
+    id: "cs-cancelled-2",
+    managerId: "mikel",
+    managerName: "Mikel Williams",
+    role: "Project Manager",
+    date: "Thu, July 24th",
+    timeSlot: "4:00pm, 4:30pm",
+    priorityId: "low",
+    description:
+      "Cancelled before acceptance. Bonnie and Mikel will pick a new slot for sprint planning and blocker communication habits.",
+    category: "Trust and Integrity",
+    suggestions: [
+      {
+        id: "p2d",
+        tag: "Trust and Integrity",
+        tone: "brand",
+        text: "Post smaller, earlier updates so the team can plan sooner.",
+      },
+    ],
+    goals: ["Share blockers earlier"],
+    status: "cancelled",
+    contextRight: "by Bonnie · Jul 22",
+    dateMeta: "Thu, Jul 24",
+    timeMeta: "4:00–4:30pm",
   },
 ];

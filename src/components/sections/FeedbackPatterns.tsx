@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { SwitchHorizontal01 } from "@untitledui/icons";
 import { Card, CardHeader } from "../ui/Card";
 import { Button } from "../ui/Button";
-import { Badge } from "../ui/Badge";
+import { categoryFocusTagCn } from "../../lib/categoryFocusTag";
 import { Checkbox } from "../ui/Checkbox";
 import { cn } from "../../lib/utils";
 import {
@@ -22,7 +22,7 @@ function BubbleLabel({ text, pos }: { text: string; pos: FeedbackPattern["labelP
   return (
     <span
       className={cn(
-        "pointer-events-none absolute z-20 block w-max max-w-[11rem] rounded-[6px] border border-gray-200 bg-white px-2.5 py-1.5 text-center text-xs font-medium leading-snug text-gray-700",
+        "pointer-events-none absolute z-20 block w-max max-w-[11rem] rounded-[6px] border border-gray-700 bg-white p-1.5 text-center text-xs font-medium leading-snug text-gray-700",
         tagOffset[pos]
       )}
     >
@@ -111,7 +111,7 @@ export function FeedbackPatterns({
   };
 
   return (
-    <Card>
+    <Card data-tour="feedback-patterns">
       <CardHeader
         title="Patterns recognized from feedback"
         subtitle="Patterns recognised in the visualization are derived from platform and peer feedback together."
@@ -132,7 +132,10 @@ export function FeedbackPatterns({
           <BubbleList />
         </div>
 
-        <div className="mt-5 rounded-xl border border-gray-200 bg-white p-4">
+        <div
+          className="mt-5 rounded-xl border border-gray-200 bg-white p-4"
+          data-tour="feedback-insights"
+        >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h4 className="text-base font-semibold text-gray-900">Feedback Insights</h4>
             <Button size="sm" onClick={handleInitiate} disabled={selected.length === 0}>
@@ -145,19 +148,17 @@ export function FeedbackPatterns({
           <ul className="space-y-2.5">
             {topFeedback.map((f) => (
               <li key={f.id}>
-                <label className="flex cursor-pointer items-start gap-3">
-                  <span className="pt-0.5">
+                <label className="flex cursor-pointer items-center gap-3">
+                  <span className="shrink-0">
                     <Checkbox
                       checked={selected.includes(f.id)}
                       onChange={() => toggle(f.id)}
                     />
                   </span>
-                  <span className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-medium leading-relaxed text-gray-700">
-                      {f.label}
-                    </span>
-                    <Badge tone={f.tone}>{f.category}</Badge>
+                  <span className="min-w-0 flex-1 text-sm font-medium leading-relaxed text-gray-700">
+                    {f.label}
                   </span>
+                  <span className={categoryFocusTagCn(f.category)}>{f.category}</span>
                 </label>
               </li>
             ))}

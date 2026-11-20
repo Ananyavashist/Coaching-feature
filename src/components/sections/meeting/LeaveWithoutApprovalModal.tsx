@@ -13,7 +13,12 @@ export function LeaveWithoutApprovalModal({
   return (
     <>
       <FloatingOverlayBackdrop open={open} onClose={onCancel} zIndex={70} />
-      <FloatingConfirmPanel open={open} ariaLabel="Approval request not sent" zIndex={71}>
+      <FloatingConfirmPanel
+        open={open}
+        ariaLabel="Approval request not sent"
+        zIndex={71}
+        showBackdrop={false}
+      >
         <h2 className="text-lg font-semibold text-gray-900">Approval request not sent</h2>
         <p className="mt-3 text-sm leading-relaxed text-gray-600">
           You haven&apos;t sent this session board to your manager for approval yet. If you

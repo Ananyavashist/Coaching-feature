@@ -180,7 +180,7 @@ export function SessionsArchivePage({
         ))}
       </div>
 
-      <div className="mt-5">
+      <div className="mt-5" data-tour="sessions-archive-list">
         {archived.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-12 text-center text-sm text-gray-500">
             No archived sessions yet. Complete a coaching meeting and leave to see it here.

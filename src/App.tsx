@@ -1,12 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, type ComponentProps } from "react";
 import { Sidebar } from "./components/layout/Sidebar";
+import { TourProvider, useTour } from "./components/tour";
 import { Topbar, type AppNotification } from "./components/layout/Topbar";
-import { PageHeader } from "./components/sections/PageHeader";
-import { PerformanceOverview } from "./components/sections/PerformanceOverview";
-import { FeedbackPatterns } from "./components/sections/FeedbackPatterns";
-import { ProjectsAssigned } from "./components/sections/ProjectsAssigned";
-import { GoalSetting } from "./components/sections/GoalSetting";
-import { Achievements } from "./components/sections/Achievements";
+import { HomePage } from "./components/sections/HomePage";
+import { MyPerformancePage } from "./components/sections/MyPerformancePage";
 import { CoachingOverlay } from "./components/sections/CoachingOverlay";
 import { CoachingSessionsPage } from "./components/sections/CoachingSessionsPage";
 import { SessionsArchivePage } from "./components/sections/SessionsArchivePage";
@@ -24,12 +21,18 @@ import {
   type SuggestionPattern,
 } from "./data/dashboard";
 
-type View = "dashboard" | "coaching" | "sessions";
+type View = "home" | "my-performance" | "coaching" | "sessions";
 type ActiveMeeting = { session: CoachingSession; goBy: string; transcript: boolean };
+
+function TourSidebar(props: Omit<ComponentProps<typeof Sidebar>, "onStartTour">) {
+  const { startTour } = useTour();
+  return <Sidebar {...props} onStartTour={startTour} />;
+}
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [view, setView] = useState<View>("dashboard");
+  const [view, setView] = useState<View>("home");
+  const [pendingScrollPatterns, setPendingScrollPatterns] = useState(false);
   const [coachingOpen, setCoachingOpen] = useState(false);
   const [overlaySuggestions, setOverlaySuggestions] = useState<SuggestionPattern[]>([]);
   const [overlayPatternsOnly, setOverlayPatternsOnly] = useState(false);
@@ -189,17 +192,46 @@ export default function App() {
   };
 
   const onNavigate = (id: string) => {
-    if (id === "home") setView("dashboard");
+    if (id === "home") setView("home");
+    else if (id === "my-performance") setView("my-performance");
     else if (id === "coaching") setView("coaching");
     else if (id === "sessions") setView("sessions");
     setMenuOpen(false);
   };
 
   const activeNavId =
-    view === "coaching" ? "coaching" : view === "sessions" ? "sessions" : "home";
+    view === "coaching"
+      ? "coaching"
+      : view === "sessions"
+        ? "sessions"
+        : view === "my-performance"
+          ? "my-performance"
+          : "home";
 
   const topbarTitle =
-    view === "coaching" ? "Coaching" : view === "sessions" ? "Sessions" : "My performance";
+    view === "coaching"
+      ? "Coaching"
+      : view === "sessions"
+        ? "Sessions"
+        : view === "my-performance"
+          ? "My Performance"
+          : "Home";
+
+  const onViewPattern = useCallback(() => {
+    setPendingScrollPatterns(true);
+    setView("my-performance");
+  }, []);
+
+  useEffect(() => {
+    if (view !== "my-performance" || !pendingScrollPatterns) return;
+    const id = window.setTimeout(() => {
+      document
+        .querySelector('[data-tour="feedback-patterns"]')
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setPendingScrollPatterns(false);
+    }, 50);
+    return () => window.clearTimeout(id);
+  }, [view, pendingScrollPatterns]);
 
   const openArchiveBoard = (s: CoachingSession) => {
     setArchiveBoardSession(sessions.find((x) => x.id === s.id) ?? s);
@@ -209,10 +241,41 @@ export default function App() {
     setArchiveTranscriptSession(sessions.find((x) => x.id === s.id) ?? s);
   };
 
+  const tourAppState = useMemo(
+    () => ({
+      view,
+      coachingOpen,
+      joiningSession: joiningSession != null,
+      meeting: meeting != null,
+    }),
+    [view, coachingOpen, joiningSession, meeting]
+  );
+
+  const onPrepareForStep = useCallback((needsSidebarNav: boolean) => {
+    if (!needsSidebarNav) return;
+    setSidebarCollapsed(false);
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) {
+      setMenuOpen(true);
+    }
+  }, []);
+
+  const onRestartTour = useCallback(() => {
+    setView("home");
+    setCoachingOpen(false);
+    setJoiningSession(null);
+    setDetailSession(null);
+    setSidebarCollapsed(false);
+  }, []);
+
   return (
+    <TourProvider
+      appState={tourAppState}
+      onPrepareForStep={onPrepareForStep}
+      onRestartTour={onRestartTour}
+    >
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
-        <Sidebar
+        <TourSidebar
           mobileOpen={menuOpen}
           onClose={() => setMenuOpen(false)}
           activeId={activeNavId}
@@ -231,17 +294,12 @@ export default function App() {
           />
 
           <main className="w-full flex-1 p-4 sm:p-6 lg:p-10">
-            {view === "dashboard" ? (
-              <div className="mx-auto w-full max-w-5xl space-y-5">
-                <PageHeader />
-                <PerformanceOverview />
-                <FeedbackPatterns
-                  onInitiateCoaching={(selected) => openOverlay(selected, true)}
-                />
-                <ProjectsAssigned />
-                <GoalSetting />
-                <Achievements />
-              </div>
+            {view === "home" ? (
+              <HomePage onViewPattern={onViewPattern} />
+            ) : view === "my-performance" ? (
+              <MyPerformancePage
+                onInitiateCoaching={(selected) => openOverlay(selected, true)}
+              />
             ) : view === "coaching" ? (
               <CoachingSessionsPage
                 sessions={sessions}
@@ -317,5 +375,6 @@ export default function App() {
         />
       ) : null}
     </div>
+    </TourProvider>
   );
 }

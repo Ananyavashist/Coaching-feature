@@ -341,9 +341,9 @@ export function CreateSessionModal({
         side="center"
         ariaLabel="Schedule a new coaching session"
         zIndex={71}
-        className="top-[100px] bottom-[100px] max-h-none -translate-y-0 w-[min(100%-2rem,850px)] max-w-[850px] sm:w-[850px]"
+        className="w-[min(calc(100vw-2rem),850px)] max-w-[850px] max-h-[min(720px,calc(100vh-2rem))]"
       >
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-5 py-4">
           <h2 className="text-base font-semibold text-gray-900">
             Schedule a new coaching session
           </h2>
@@ -356,7 +356,7 @@ export function CreateSessionModal({
           </button>
         </div>
 
-        <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-5">
           <div>
             <Label required>Send this request to</Label>
             <Select options={recipientOptions} value={recipient} onChange={setRecipient} size="lg" />
@@ -621,7 +621,7 @@ export function CreateSessionModal({
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 border-t border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex shrink-0 flex-col gap-3 border-t border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="flex items-center gap-1.5 text-sm text-gray-500">
             <span className="h-1 w-1 rounded-full bg-gray-400" />
             Will show as pending until {coach.name} responds

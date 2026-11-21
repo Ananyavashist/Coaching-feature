@@ -77,7 +77,7 @@ export function TranscriptSummaryView({
   return (
     <div className="space-y-6 p-5">
       <div>
-        <h2 className="font-serif text-xl font-semibold text-gray-900">
+        <h2 className="font-sans text-xl font-semibold text-gray-900">
           Coaching session with {session.managerName}
         </h2>
         <div className="mt-2 flex flex-wrap gap-2">

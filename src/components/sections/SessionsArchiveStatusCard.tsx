@@ -54,9 +54,9 @@ export function SessionsArchiveStatusCard({
         </button>
       </div>
 
-      <IdentityBlock name={session.managerName} role={session.role} />
+      <IdentityBlock name={session.managerName} />
 
-      <SessionMetaRow dateLine={dateLine} timeLine={timeLine} className="mt-4" />
+      <SessionMetaRow dateLine={dateLine} timeLine={timeLine} className="mt-1" />
 
       <CardDivider />
 

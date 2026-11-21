@@ -9,8 +9,8 @@ export const primaryNav: NavItem[] = [
   { id: "home", label: "Home", icon: "Home01", active: true },
   { id: "my-performance", label: "My Performance", icon: "BarChartSquare02" },
   { id: "teams", label: "My Teams", icon: "Users01" },
-  { id: "coaching", label: "Coaching", icon: "GraduationHat01" },
-  { id: "sessions", label: "Sessions", icon: "FileCheck02" },
+  { id: "coaching", label: "My Coaching", icon: "GraduationHat01" },
+  { id: "sessions", label: "My Sessions", icon: "FileCheck02" },
   { id: "evaluation-criteria", label: "Evaluation criteria", icon: "FileCheck02" },
   { id: "yearly-insights", label: "Yearly Insights", icon: "LineChartUp03" },
 ];
@@ -357,8 +357,22 @@ export const homeSuggestions: HomeSuggestion[] = [
     goalLabel: "Engineering Excellence",
     criteriaLabel: "Code Quality & Review Efficiency",
     generated: "10/08",
-    reasoning: [],
-    actionItems: [],
+    reasoning: [
+      {
+        id: "r1a",
+        text: "Review threads often ask for testing steps or scope that were missing in the PR description.",
+        source: "GitHub",
+      },
+      {
+        id: "r1b",
+        text: "Peer feedback mentions repeated rounds on the same documentation gaps.",
+        source: "Slack",
+      },
+    ],
+    actionItems: [
+      "Use the team PR template for the next three pull requests.",
+      "Add screenshots or API notes when behavior changes.",
+    ],
   },
   {
     id: "hs-2",
@@ -652,7 +666,7 @@ export function buildLiveTranscriptScript(session: CoachingSession): Omit<Transc
     {
       speaker: "manager",
       speakerName: manager,
-      text: "Agreed. Let's also talk about sharing blockers earlier — that's come up in peer feedback.",
+      text: "Agreed. Let's also talk about sharing blockers earlier. That's come up in peer feedback.",
       timestamp: "2:09 PM",
     },
     {
@@ -912,7 +926,7 @@ export function draftBoardFromTranscript(
 /** AI-drafted notes produced from the "transcript" — must be reviewed before saving. */
 export function draftNotesFromTranscript(session: CoachingSession): string {
   return [
-    "AI draft — review before saving.",
+    "AI draft. Review before saving.",
     `• Reviewed ${session.managerName}'s guidance on ${session.category.toLowerCase()}.`,
     "• Walked through the attached patterns alongside the engineer's own challenge description.",
     "• Agreed on a shared problem statement and confirmed alignment.",
@@ -951,7 +965,7 @@ export const initialSessions: CoachingSession[] = [
     meetingPlatform: "Google Meet",
     contextRight: "In 3 days",
     dateMeta: "Mon, Aug 2",
-    timeMeta: "2:00–2:30pm",
+    timeMeta: "2:00-2:30pm",
   },
   {
     id: "cs-upcoming-2",
@@ -976,7 +990,7 @@ export const initialSessions: CoachingSession[] = [
     status: "pending",
     contextRight: "Sent 1 day ago",
     dateMeta: "Proposed Fri, Aug 9",
-    timeMeta: "3:00–3:30pm",
+    timeMeta: "3:00-3:30pm",
   },
   {
     id: "cs-history-1",
@@ -1210,7 +1224,7 @@ export const initialSessions: CoachingSession[] = [
     isPermanentDemo: true,
     contextRight: "Sent 2 days ago",
     dateMeta: "Proposed Thu, Aug 7",
-    timeMeta: "3:00–3:30pm",
+    timeMeta: "3:00-3:30pm",
   },
   {
     id: "cs-active-followup-1",
@@ -1221,7 +1235,7 @@ export const initialSessions: CoachingSession[] = [
     timeSlot: "1:30pm, 2:00pm",
     priorityId: "medium",
     description:
-      "Follow-up on PR template adoption — review progress on the last three pull requests and adjust the template if reviewers still need more context.",
+      "Follow-up on PR template adoption. Review progress on the last three pull requests and adjust the template if reviewers still need more context.",
     category: "Engineering Excellence",
     suggestions: [],
     goals: ["Confirm template is working", "Identify remaining gaps"],
@@ -1229,7 +1243,7 @@ export const initialSessions: CoachingSession[] = [
     isPermanentDemo: true,
     contextRight: "Sent 4 days ago",
     dateMeta: "Proposed Wed, Aug 6",
-    timeMeta: "1:30–2:00pm",
+    timeMeta: "1:30-2:00pm",
   },
   {
     id: "cs-cancelled-1",
@@ -1260,7 +1274,7 @@ export const initialSessions: CoachingSession[] = [
     status: "cancelled",
     contextRight: "by Sarah · Jul 30",
     dateMeta: "Mon, Aug 2",
-    timeMeta: "2:00–2:30pm",
+    timeMeta: "2:00-2:30pm",
   },
   {
     id: "cs-cancelled-2",
@@ -1285,6 +1299,6 @@ export const initialSessions: CoachingSession[] = [
     status: "cancelled",
     contextRight: "by Bonnie · Jul 22",
     dateMeta: "Thu, Jul 24",
-    timeMeta: "4:00–4:30pm",
+    timeMeta: "4:00-4:30pm",
   },
 ];

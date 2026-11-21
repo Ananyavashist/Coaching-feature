@@ -37,11 +37,10 @@ export function FocusTag({ tag, className }: { tag: string; className?: string }
   return <span className={cn(categoryFocusTagCn(tag), className)}>{tag}</span>;
 }
 
-export function IdentityBlock({ name, role }: { name: string; role: string }) {
+export function IdentityBlock({ name }: { name: string }) {
   return (
     <div className="mt-4">
       <h3 className="text-base font-semibold text-gray-900">{name}</h3>
-      <p className="mt-3 text-sm text-gray-500">{role}</p>
     </div>
   );
 }
@@ -57,7 +56,7 @@ export function formatTimeSlot(slot: string): string {
     const end = parts[1].replace(/pm|am/gi, (m) => m.toLowerCase());
     const suffix = start.match(/(am|pm)/)?.[1] ?? end.match(/(am|pm)/)?.[1] ?? "";
     const startTime = start.replace(/\s*(am|pm)/i, "");
-    return `${startTime}–${end}${suffix}`;
+    return `${startTime}-${end}${suffix}`;
   }
   return slot;
 }

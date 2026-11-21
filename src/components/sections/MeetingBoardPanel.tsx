@@ -398,7 +398,7 @@ export function MeetingBoardPanel({
           {!isLive ? (
           <Card icon={<Calendar className="h-4.5 w-4.5" />} title="AI-suggested agenda">
             <p className="mb-2 text-xs italic text-gray-400">
-              Suggested starting point — edit as needed.
+              Suggested starting point. Edit as needed.
             </p>
             {capturedEditable ? (
               <textarea
@@ -424,13 +424,13 @@ export function MeetingBoardPanel({
             {!isLive && capturedEditable ? (
               <p className="mb-2 flex items-center gap-1.5 text-xs italic text-gray-400">
                 <Stars02 className="h-3.5 w-3.5" />
-                AI drafts these when you stop the transcript — review before saving.
+                AI drafts these when you stop the transcript. Review before saving.
               </p>
             ) : null}
             <TextBlock
               value={board.notes}
               editable={capturedEditable}
-              placeholder="Notes are drafted from the call for remote sessions, or typed for in-person — reviewed before saving."
+              placeholder="Notes are drafted from the call for remote sessions, or typed for in-person. Review before saving."
               onChange={(v) => update({ notes: v })}
               rows={5}
             />

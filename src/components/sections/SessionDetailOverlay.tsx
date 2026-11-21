@@ -26,7 +26,7 @@ function buildReport(session: CoachingSession): string {
     board.desiredOutcome,
     "",
     "Problem statement",
-    board.problemStatement || "—",
+    board.problemStatement || "Not set",
     "",
     "Milestones",
     ...board.milestones.map((m) => `• ${m.text} (${m.owner}, check in ${m.checkIn})`),
@@ -35,7 +35,7 @@ function buildReport(session: CoachingSession): string {
     ...board.tasks.map((t) => `• ${t.text} (${t.owner}, due ${t.due})`),
     "",
     "Session notes",
-    board.notes || "—",
+    board.notes || "Not set",
   ];
   return lines.join("\n");
 }

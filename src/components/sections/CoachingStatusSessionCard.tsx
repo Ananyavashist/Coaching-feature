@@ -73,14 +73,14 @@ export function CoachingStatusSessionCard({
         ) : null}
       </div>
 
-      <IdentityBlock name={session.managerName} role={session.role} />
+      <IdentityBlock name={session.managerName} />
 
       <CoachingMetaRow
         status={status}
         dateLine={dateLine}
         timeLine={timeLine}
         platform={session.meetingPlatform}
-        className="mt-4"
+        className="mt-1"
       />
 
       <CardDivider />

@@ -57,7 +57,7 @@ export function FloatingOverlayPanel({
         aria-modal="true"
         aria-label={ariaLabel}
         className={cn(
-          "fixed left-1/2 top-1/2 flex max-h-[calc(100vh-2rem)] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-[20px] border border-gray-200 bg-white transition-all duration-300",
+          "fixed left-1/2 top-1/2 flex max-h-[calc(100vh-2rem)] w-[calc(100%-2rem)] min-h-0 -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-[20px] border border-gray-200 bg-white transition-all duration-300",
           FLOAT_SHADOW,
           open ? "scale-100 opacity-100" : "pointer-events-none scale-[0.98] opacity-0",
           className

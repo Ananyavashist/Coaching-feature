@@ -215,7 +215,7 @@ export default function App() {
         ? "Sessions"
         : view === "my-performance"
           ? "My Performance"
-          : "Home";
+          : "My Dashboard";
 
   const onViewPattern = useCallback(() => {
     setPendingScrollPatterns(true);

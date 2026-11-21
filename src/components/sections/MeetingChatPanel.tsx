@@ -14,7 +14,7 @@ const seedMessages = (session: CoachingSession): ChatMessage[] => [
   {
     id: "m1",
     author: session.managerName,
-    text: "Thanks for joining — let's start with the agenda you shared.",
+    text: "Thanks for joining. Let's start with the agenda you shared.",
     time: "2:01 PM",
   },
   {

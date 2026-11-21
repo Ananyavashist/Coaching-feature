@@ -34,20 +34,6 @@ function SuggestionRow({ item }: { item: HomeSuggestion }) {
   return (
     <div className="px-5 py-4">
       <div className="flex items-start gap-3">
-        {hasDetail ? (
-          <button
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            aria-expanded={open}
-            className="mt-0.5 rounded-md p-1 text-gray-500 hover:bg-gray-100"
-          >
-            <ChevronDown
-              className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
-            />
-          </button>
-        ) : (
-          <span className="mt-0.5 w-6 shrink-0" aria-hidden />
-        )}
         <div className="min-w-0 flex-1">
           <p className="text-sm leading-relaxed text-gray-800">{item.body}</p>
           <p className="mt-2 text-sm">
@@ -63,11 +49,22 @@ function SuggestionRow({ item }: { item: HomeSuggestion }) {
             Add as Action
           </button>
         </div>
-        <span className="shrink-0 text-xs text-gray-500">Generated: {item.generated}</span>
+        {hasDetail ? (
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            className="mt-0.5 shrink-0 rounded-md p-1 text-gray-500 hover:bg-gray-100"
+          >
+            <ChevronDown
+              className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
+            />
+          </button>
+        ) : null}
       </div>
 
       {open && hasDetail ? (
-        <div className="mt-4 grid gap-6 border-t border-gray-100 pt-4 pl-9 md:grid-cols-2">
+        <div className="mt-4 grid gap-6 border-t border-gray-100 pt-4 md:grid-cols-2">
           <div>
             <h4 className="text-sm font-semibold text-gray-900">Reasoning</h4>
             <ul className="mt-2 space-y-3">

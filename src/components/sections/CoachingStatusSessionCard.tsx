@@ -1,8 +1,6 @@
 import { Calendar, ArrowUpRight } from "@untitledui/icons";
 import { Button } from "../ui/Button";
-import { Badge } from "../ui/Badge";
 import {
-  priorities,
   type CoachingSession,
   type CoachingStatus,
 } from "../../data/dashboard";
@@ -35,7 +33,6 @@ export function CoachingStatusSessionCard({
   joinTourAnchor?: boolean;
 }) {
   const status = session.status as Exclude<CoachingStatus, "active">;
-  const priority = priorities.find((p) => p.id === session.priorityId);
   const categoryTags = Array.from(
     new Set(session.suggestions.map((s) => s.tag))
   ).slice(0, 2);
@@ -46,7 +43,7 @@ export function CoachingStatusSessionCard({
   return (
     <article className="flex h-full w-full flex-col rounded-2xl border border-gray-200 bg-white p-5">
       <div className="flex items-start justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar">
           {status === "upcoming" ? (
             <StatusDotBadge label="Confirmed" tone="success" />
           ) : null}
@@ -58,11 +55,9 @@ export function CoachingStatusSessionCard({
           ) : null}
           {status === "history" ? <StatusDotBadge label="Completed" tone="gray" /> : null}
           {status === "cancelled" ? <StatusDotBadge label="Cancelled" tone="error" /> : null}
-          {priority ? (
-            <Badge tone={priority.tone} className="font-medium">
-              {priority.label}
-            </Badge>
-          ) : null}
+          {categoryTags.map((tag) => (
+            <FocusTag key={tag} tag={tag} className="shrink-0" />
+          ))}
         </div>
 
         {status === "upcoming" && session.contextRight ? (
@@ -80,20 +75,12 @@ export function CoachingStatusSessionCard({
 
       <IdentityBlock name={session.managerName} role={session.role} />
 
-      {categoryTags.length > 0 ? (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {categoryTags.map((tag) => (
-            <FocusTag key={tag} tag={tag} />
-          ))}
-        </div>
-      ) : null}
-
       <CoachingMetaRow
         status={status}
         dateLine={dateLine}
         timeLine={timeLine}
         platform={session.meetingPlatform}
-        className={categoryTags.length > 0 ? "mt-3" : "mt-4"}
+        className="mt-4"
       />
 
       <CardDivider />

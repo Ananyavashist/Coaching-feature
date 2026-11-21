@@ -1,6 +1,6 @@
-import { ChevronRight, Flag01 } from "@untitledui/icons";
+import { ChevronRight } from "@untitledui/icons";
 import { Badge } from "../ui/Badge";
-import { priorities, type CoachingSession } from "../../data/dashboard";
+import { type CoachingSession } from "../../data/dashboard";
 import {
   CardDivider,
   FocusTag,
@@ -19,7 +19,6 @@ export function SessionsArchiveStatusCard({
   mode: "board" | "transcript";
   onOpen: () => void;
 }) {
-  const priority = priorities.find((p) => p.id === session.priorityId);
   const categoryTags = Array.from(new Set(session.suggestions.map((s) => s.tag))).slice(0, 2);
 
   const dateLine = session.dateMeta ?? session.date;
@@ -28,20 +27,21 @@ export function SessionsArchiveStatusCard({
   return (
     <article className="flex h-full w-full flex-col rounded-2xl border border-gray-200 bg-white p-5">
       <div className="flex items-start justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar">
           <StatusDotBadge label="Ended" tone="gray" />
-          {priority ? (
-            <Badge tone={priority.tone} className="font-medium">
-              <Flag01 className="mr-1 h-3 w-3" />
-              {priority.label}
+          {mode === "board" && session.boardApprovalStatus === "draft" ? (
+            <Badge tone="warning" className="shrink-0 whitespace-nowrap">
+              Sending request pending
             </Badge>
           ) : null}
-          {mode === "board" && session.boardApprovalStatus === "draft" ? (
-            <Badge tone="warning">Sending request pending</Badge>
-          ) : null}
           {mode === "board" && session.boardApprovalStatus === "pending" ? (
-            <Badge tone="brand">Pending manager approval</Badge>
+            <Badge tone="brand" className="shrink-0 whitespace-nowrap">
+              Pending manager approval
+            </Badge>
           ) : null}
+          {categoryTags.map((tag) => (
+            <FocusTag key={tag} tag={tag} className="shrink-0" />
+          ))}
         </div>
 
         <button
@@ -56,19 +56,7 @@ export function SessionsArchiveStatusCard({
 
       <IdentityBlock name={session.managerName} role={session.role} />
 
-      {categoryTags.length > 0 ? (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {categoryTags.map((tag) => (
-            <FocusTag key={tag} tag={tag} />
-          ))}
-        </div>
-      ) : null}
-
-      <SessionMetaRow
-        dateLine={dateLine}
-        timeLine={timeLine}
-        className={categoryTags.length > 0 ? "mt-3" : "mt-4"}
-      />
+      <SessionMetaRow dateLine={dateLine} timeLine={timeLine} className="mt-4" />
 
       <CardDivider />
 

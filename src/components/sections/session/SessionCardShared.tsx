@@ -23,7 +23,7 @@ export function StatusDotBadge({ label, tone }: { label: string; tone: DotTone }
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] font-semibold uppercase tracking-wide",
+        "inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] font-semibold uppercase tracking-wide",
         dotToneStyles[tone]
       )}
     >
@@ -33,8 +33,8 @@ export function StatusDotBadge({ label, tone }: { label: string; tone: DotTone }
   );
 }
 
-export function FocusTag({ tag }: { tag: string }) {
-  return <span className={categoryFocusTagCn(tag)}>{tag}</span>;
+export function FocusTag({ tag, className }: { tag: string; className?: string }) {
+  return <span className={cn(categoryFocusTagCn(tag), className)}>{tag}</span>;
 }
 
 export function IdentityBlock({ name, role }: { name: string; role: string }) {
